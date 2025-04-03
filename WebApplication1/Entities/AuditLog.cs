@@ -12,6 +12,7 @@ namespace WebApplication1.Entities
         public string IpAddress { get; set; }  
         public string Details { get; set; }  
 
+        [ForeignKey("UserId")] 
         public UserAccount Account { get; set; }
        
     }
