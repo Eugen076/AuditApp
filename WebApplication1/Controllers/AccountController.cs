@@ -6,17 +6,21 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WebApplication1.Entities;
 using WebApplication1.Models;
+using WebApplication1.Services;
+
 
 
 namespace WebApplication1.Controllers
 {
     public class AccountController : Controller
-    {   
+    {
         private readonly AuditDbContext _auditDbContext;
+        private readonly IAuditService _auditService;
 
-        public AccountController(AuditDbContext auditDbContext)
+        public AccountController(AuditDbContext auditDbContext, IAuditService auditService)
         {
             _auditDbContext = auditDbContext;
+            _auditService = auditService;
         }
 
         public IActionResult Index()
@@ -32,15 +36,16 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public IActionResult Registration(RegistrationViewModel model)
         {
-
-            if(ModelState.IsValid)
-            {   
-                UserAccount account = new UserAccount();
-                account.Email = model.Email;
-                account.FirstName = model.FirstName;
-                account.LastName = model.LastName;
-                account.Password = model.Password;
-                account.UserName = model.UserName;
+            if (ModelState.IsValid)
+            {
+                UserAccount account = new UserAccount
+                {
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Password = model.Password,
+                    UserName = model.UserName
+                };
 
                 try
                 {
@@ -48,13 +53,11 @@ namespace WebApplication1.Controllers
                     _auditDbContext.SaveChanges();
 
                     ModelState.Clear();
-                    ViewBag.Message = $"{account.FirstName} {account.LastName} registered succesfully. Please login.";
-                    
+                    ViewBag.Message = $"{account.FirstName} {account.LastName} registered successfully. Please login.";
                 }
                 catch (DbUpdateException ex)
                 {
-
-                    ModelState.AddModelError("", "Please introduce an unique unsername or password.");
+                    ModelState.AddModelError("", "Please introduce a unique username or password.");
                     return View(model);
                 }
                 return View();
@@ -68,33 +71,42 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                var user = _auditDbContext.UserAccounts.Where(x => (x.UserName == model.UserNameorEmail || x.Email == model.UserNameorEmail) && x.Password == model.Password).FirstOrDefault();
-                if(user != null)
+                var user = _auditDbContext.UserAccounts
+                    .Where(x => (x.UserName == model.UserNameorEmail || x.Email == model.UserNameorEmail) && x.Password == model.Password)
+                    .FirstOrDefault();
+
+                if (user != null)
                 {
-                    //succes, create cookie
+
                     var claims = new List<Claim>
-                   {
-                       new Claim(ClaimTypes.Name, user.Email),
-                       new Claim("Name", user.FirstName),
-                       new Claim(ClaimTypes.Role, "User"),
-                   };
+                    {
+                      new Claim(ClaimTypes.Name, user.Email),
+                      new Claim("Name", user.FirstName),
+                      new Claim(ClaimTypes.Role, "User"),
+                    };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-                   
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                    // LOGARE ÎN AUDIT
+                    await _auditService.LogAsync(user.Id,user.UserName, "Login", "User successfully logged in.");
+
                     return RedirectToAction("SecurePage");
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Username/Email or Password is not correct");
+                    await _auditService.LogAsync(null, model.UserNameorEmail, "Failed Login", $"Failed login attempt for {model.UserNameorEmail}");
+
+                    ModelState.AddModelError("", "Username/Email or Password is incorrect.");
                 }
             }
             return View(model);
         }
+
 
         public IActionResult LogOut()
         {
@@ -102,7 +114,7 @@ namespace WebApplication1.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize] 
+        [Authorize]
         public IActionResult SecurePage()
         {
             ViewBag.Name = HttpContext.User.Identity.Name;

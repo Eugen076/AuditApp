@@ -6,7 +6,7 @@ namespace WebApplication1.Models
     {
         public int Id { get; set; }
         [DisplayName("Username")]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
         [DisplayName("Action type")]
         public string Action { get; set; }
         [DisplayName("Timestamp")]

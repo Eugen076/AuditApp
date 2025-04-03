@@ -1,13 +1,14 @@
 ﻿@model IEnumerable<WebApplication1.Entities.AuditLog>
 
-<h2>Audit Logs</h2>
+<h2>Dashboard</h2>
 
 <table class="table">
     <thead>
         <tr>
             <th>User ID</th>
+            <th>UserName</th>
             <th>Action</th>
-            <th>Timestamp</th>
+            <th>Date / Time</th>
             <th>IP Address</th>
             <th>Details</th>
         </tr>
@@ -17,8 +18,9 @@
         {
             <tr>
                 <td>@log.UserId</td>
+                <td>@log.UserName</td>
                 <td>@log.Action</td>
-                <td>@log.Timestamp</td>
+                <td>@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy  HH:mm:ss")</td>
                 <td>@log.IpAddress</td>
                 <td>@log.Details</td>
             </tr>

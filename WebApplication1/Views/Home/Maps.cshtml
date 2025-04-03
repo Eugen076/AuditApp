@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Maps";
+}
+
+<h2>Maps - Your Location</h2>
+
+<!-- Harta va fi afișată aici -->
+<div id="map"></div>
+
+<!-- Stiluri pentru harta -->
+<style>
+    #map {
+        height: 400px;
+        width: 100%;
+        margin-top: 20px;
+    }
+</style>
+
+<!-- Leaflet JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    function loadMap() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+
+                var map = L.map('map').setView([lat, lon], 15);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup("Your Location")
+                    .openPopup();
+            }, function (error) {
+                console.error("Error getting location:", error);
+                alert("Could not get location. Make sure you allow location access.");
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadMap);
+</script>

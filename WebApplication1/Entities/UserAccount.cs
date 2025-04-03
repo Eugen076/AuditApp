@@ -32,6 +32,6 @@ namespace WebApplication1.Entities
         [MaxLength(20, ErrorMessage = "Password cannot exceed 20 characters.")]
         public string Password { get; set; }
 
-        public ICollection<AuditLog> AuditLogs { get; set; }
+        public virtual ICollection<AuditLog> AuditLogs { get; set; }
     }
 }

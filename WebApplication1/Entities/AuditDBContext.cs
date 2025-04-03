@@ -12,6 +12,13 @@ namespace WebApplication1.Entities
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            modelBuilder.Entity<AuditLog>()
+                .HasOne(a => a.Account)  // AuditLog are UN UserAccount
+                .WithMany(u => u.AuditLogs)  // UserAccount are MAI MULTE AuditLogs
+                .HasForeignKey(a => a.UserId)  // FK-ul corect este UserId
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
