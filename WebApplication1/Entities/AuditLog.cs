@@ -9,7 +9,7 @@ namespace WebApplication1.Entities
         public int Id { get; set; }
 
         [ForeignKey(nameof(Account))]  // Specifică FK corect
-        public int? UserId { get; set; }
+        public string? UserId { get; set; }
 
         public string? UserName { get; set; }
 

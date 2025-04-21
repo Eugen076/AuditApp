@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.AspNetCore.Http;
+using WebApplication1.Data;
 using WebApplication1.Entities;
 
 namespace WebApplication1.Services
@@ -16,7 +17,8 @@ namespace WebApplication1.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task LogAsync(int? userId,string userName, string action, string details)
+        public async Task LogAsync(string? userId, string userName, string action, string details)
+
         {
             var ip = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
 

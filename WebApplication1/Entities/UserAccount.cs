@@ -1,4 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+
+namespace WebApplication1.Entities
+{
+    public class UserAccount : IdentityUser
+    {
+        [Required]
+        [MaxLength(50)]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(50)]
+        public string LastName { get; set; } = string.Empty;
+    }
+}
+
+/*using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.Entities
@@ -35,3 +52,4 @@ namespace WebApplication1.Entities
         public virtual ICollection<AuditLog> AuditLogs { get; set; }
     }
 }
+*/

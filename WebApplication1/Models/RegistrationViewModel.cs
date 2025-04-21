@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.Models
 {
@@ -22,5 +23,13 @@ namespace WebApplication1.Models
 
         [Required]
         public string ConfirmPassword { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Please select a role.")]
+        public string Role { get; set; } 
+
+        public List<SelectListItem> Roles { get; set; } = new(); 
+
+
+
     }
 }

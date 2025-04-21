@@ -1,12 +1,34 @@
-﻿@model IEnumerable<WebApplication1.Entities.AuditLog>
+﻿@model WebApplication1.Models.AuditLogFilterViewModel
 
-<h2>Dashboard</h2>
+@{
+    ViewData["Title"] = "Audit Logs";
+}
 
-<table class="table">
+<h2 class="mt-4">Audit Logs</h2>
+
+<form method="get" asp-controller="AuditLog" asp-action="Index" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <input name="userName" class="form-control" placeholder="Username" value="@Model.UserName" />
+    </div>
+    <div class="col-md-3">
+        <input name="actionType" class="form-control" placeholder="Action" value="@Model.Action" />
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="fromDate" class="form-control" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))" />
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="toDate" class="form-control" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Search</button>
+    </div>
+</form>
+
+<table class="table table-striped">
     <thead>
         <tr>
-            <th>User ID</th>
-            <th>UserName</th>
+            @* <th>User ID</th> *@
+            <th>Username</th>
             <th>Action</th>
             <th>Date / Time</th>
             <th>IP Address</th>
@@ -14,16 +36,28 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var log in Model)
+        @if (Model.Results != null && Model.Results.Any())
+        {
+            foreach (var log in Model.Results)
+            {
+                <tr>
+                    @* <td>@log.Id</td> *@
+                    <td>@log.UserName</td>
+                    <td>@log.Action</td>
+                    <td>@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy  HH:mm:ss")</td>
+                    <td>@log.IpAddress</td>
+                    <td>@log.Details</td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td>@log.UserId</td>
-                <td>@log.UserName</td>
-                <td>@log.Action</td>
-                <td>@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy  HH:mm:ss")</td>
-                <td>@log.IpAddress</td>
-                <td>@log.Details</td>
+                <td colspan="6" class="text-center text-muted">No logs found.</td>
             </tr>
         }
     </tbody>
 </table>
+
+
+

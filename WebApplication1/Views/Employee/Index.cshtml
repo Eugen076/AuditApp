@@ -1,0 +1,23 @@
+﻿@model IEnumerable<WebApplication1.Entities.UserAccount>
+
+<h2>Lista angajaților</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>UserName</th>
+            <th>Activ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.UserName</td>
+                <td>@(user.LockoutEnabled && user.LockoutEnd > DateTime.Now ? "Inactiv" : "Activ")</td>
+            </tr>
+        }
+    </tbody>
+</table>

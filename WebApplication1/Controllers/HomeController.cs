@@ -12,7 +12,7 @@ namespace WebApplication1.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly EmailService _emailService; 
 
-        public HomeController(ILogger<HomeController> logger, EmailService emailService) // ✅ Injectăm serviciul în constructor
+        public HomeController(ILogger<HomeController> logger, EmailService emailService) 
         {
             _logger = logger;
             _emailService = emailService;
@@ -58,7 +58,12 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
-        
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+
 
     }
 }

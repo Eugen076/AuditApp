@@ -47,6 +47,13 @@
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Role" class="control-label"></label>
+                <select asp-for="Role" asp-items="Model.Roles" class="form-control">
+                    <option value="">Select role</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Register" class="btn btn-primary" />
             </div>
         </form>
@@ -54,7 +61,7 @@
 </div>
 
 <div>
-    Already have an account? <a asp-action="Login">Go To Login</a>
+    @* Already have an account? <a asp-action="Login">Go To Login</a> *@
 </div>
 
 @section Scripts {
