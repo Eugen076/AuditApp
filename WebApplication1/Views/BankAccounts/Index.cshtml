@@ -1,0 +1,48 @@
+﻿@model IEnumerable<WebApplication1.Entities.BankAccount>
+
+@{
+    ViewData["Title"] = "Lista Conturi Bancare";
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create" asp-route-customerId="@ViewBag.CustomerId" class="btn btn-primary">Adaugă Cont Nou</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>IBAN</th>
+            <th>Sold</th>
+            <th>Monedă</th>
+            <th>Creat La</th>
+            <th>Client</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.IBAN</td>
+                <td>@item.Balance</td>
+                <td>@item.Currency</td>
+                <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@item.Customer?.FullName</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detalii</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Editează</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Șterge</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

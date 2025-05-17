@@ -12,6 +12,10 @@ namespace WebApplication1.Entities
         [Required]
         [MaxLength(50)]
         public string LastName { get; set; } = string.Empty;
+
+        public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
+        public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+
     }
 }
 

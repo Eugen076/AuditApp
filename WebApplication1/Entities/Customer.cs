@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
 
 namespace WebApplication1.Entities
 {
@@ -15,7 +17,7 @@ namespace WebApplication1.Entities
         [StringLength(100)]
         public string FullName { get; set; }
 
-       /* [Required]
+        [Required]
         [StringLength(13, MinimumLength = 13)]
         public string CNP { get; set; }
 
@@ -34,14 +36,17 @@ namespace WebApplication1.Entities
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;*/
+        [ValidateNever]
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-      
- /*       [ForeignKey("CreatedBy")]
-        public string CreatedById { get; set; }
-        public UserAccount CreatedBy { get; set; }*/
+        [ForeignKey(nameof(CreatedBy))]
+        public string? CreatedById { get; set; }
 
-        // public ICollection<Account> Accounts { get; set; }
+        [ValidateNever]
+        public virtual UserAccount CreatedBy { get; set; }
+
+        [ValidateNever]
+        public ICollection<BankAccount> BankAccounts { get; set; }
     }
 
 }

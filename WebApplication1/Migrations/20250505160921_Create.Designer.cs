@@ -12,8 +12,8 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AuditDbContext))]
-    [Migration("20250418095100_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250505160921_Create")]
+    partial class Create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -198,6 +198,40 @@ namespace WebApplication1.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("WebApplication1.Entities.BankAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IBAN")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("BankAccounts");
+                });
+
             modelBuilder.Entity("WebApplication1.Entities.Customer", b =>
                 {
                     b.Property<int>("Id")
@@ -206,12 +240,44 @@ namespace WebApplication1.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CNP")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
 
                     b.ToTable("Customers");
                 });
@@ -345,10 +411,42 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Entities.AuditLog", b =>
                 {
                     b.HasOne("WebApplication1.Entities.UserAccount", "Account")
-                        .WithMany()
+                        .WithMany("AuditLogs")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("WebApplication1.Entities.BankAccount", b =>
+                {
+                    b.HasOne("WebApplication1.Entities.Customer", "Customer")
+                        .WithMany("BankAccounts")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("WebApplication1.Entities.Customer", b =>
+                {
+                    b.HasOne("WebApplication1.Entities.UserAccount", "CreatedBy")
+                        .WithMany("Customers")
+                        .HasForeignKey("CreatedById");
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("WebApplication1.Entities.Customer", b =>
+                {
+                    b.Navigation("BankAccounts");
+                });
+
+            modelBuilder.Entity("WebApplication1.Entities.UserAccount", b =>
+                {
+                    b.Navigation("AuditLogs");
+
+                    b.Navigation("Customers");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using WebApplication1.Data;
+
 //using WebApplication1.Data;
 using WebApplication1.Entities;
 using WebApplication1.Models;
@@ -20,15 +22,18 @@ namespace WebApplication1.Controllers
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IAuditService _auditService;
+        private readonly AuditDbContext _context;
 
         public AccountController(
             UserManager<UserAccount> userManager,
             SignInManager<UserAccount> signInManager,
-            IAuditService auditService)
+            IAuditService auditService,
+            AuditDbContext context) 
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _auditService = auditService;
+            _context = context; 
         }
 
         /* public IActionResult Index()
@@ -80,7 +85,8 @@ namespace WebApplication1.Controllers
                 UserName = model.UserName,
                 Email = model.Email,
                 FirstName = model.FirstName,
-                LastName = model.LastName
+                LastName = model.LastName,
+                LockoutEnabled = true
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -127,7 +133,11 @@ namespace WebApplication1.Controllers
 
             if (user != null)
             {
-                var result = await _signInManager.PasswordSignInAsync(user, model.Password, isPersistent: false, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(
+                    user,
+                    model.Password,
+                    isPersistent: false,
+                    lockoutOnFailure: true);
 
                 if (result.Succeeded)
                 {
@@ -137,6 +147,22 @@ namespace WebApplication1.Controllers
                 else
                 {
                     await _auditService.LogAsync(user.Id, user.UserName, "Failed Login", "Wrong password.");
+                }
+                if (result.IsLockedOut)
+                {
+                   
+                    var alreadyLogged = await _context.AuditLogs.AnyAsync(l =>
+                        l.Action == "Account Locked" &&
+                        l.UserName == user.UserName &&
+                        l.Timestamp > DateTime.UtcNow.AddMinutes(-2));
+
+                    if (!alreadyLogged)
+                    {
+                        await _auditService.LogAsync(user.Id, user.UserName, "Account Locked", "Cont blocat după prea multe încercări.");
+                    }
+
+                    ModelState.AddModelError("", "Contul a fost blocat temporar.");
+                    return View(model);
                 }
             }
             else

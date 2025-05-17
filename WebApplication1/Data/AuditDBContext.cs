@@ -10,6 +10,7 @@ namespace WebApplication1.Data
 
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<BankAccount> BankAccounts { get; set; }
     }
 }
 

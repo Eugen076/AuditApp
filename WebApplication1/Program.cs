@@ -19,6 +19,10 @@ builder.Services.AddDefaultIdentity<UserAccount>(options =>
     options.Password.RequiredLength = 6;
     options.Password.RequireDigit = true;
     options.Password.RequireNonAlphanumeric = false;
+
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddRoles<IdentityRole>() 
 .AddEntityFrameworkStores<AuditDbContext>();

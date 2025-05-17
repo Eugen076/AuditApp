@@ -1,0 +1,33 @@
+﻿@model WebApplication1.Entities.BankAccount
+
+@{
+    ViewData["Title"] = "Șterge Cont Bancar";
+}
+
+<h1>Șterge Cont Bancar</h1>
+
+<h3>Sigur dorești să ștergi acest cont?</h3>
+
+<div>
+    <h4>Detalii Cont:</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">IBAN</dt>
+        <dd class="col-sm-10">@Model.IBAN</dd>
+
+        <dt class="col-sm-2">Sold</dt>
+        <dd class="col-sm-10">@Model.Balance</dd>
+
+        <dt class="col-sm-2">Monedă</dt>
+        <dd class="col-sm-10">@Model.Currency</dd>
+
+        <dt class="col-sm-2">Client</dt>
+        <dd class="col-sm-10">@Model.Customer?.FullName</dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Șterge</button>
+        <a asp-action="Index" asp-route-customerId="@Model.CustomerId" class="btn btn-secondary">Renunță</a>
+    </form>
+</div>

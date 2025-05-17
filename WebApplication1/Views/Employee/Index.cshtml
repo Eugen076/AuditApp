@@ -1,5 +1,14 @@
 ﻿@model IEnumerable<WebApplication1.Entities.UserAccount>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Warning"] != null)
+{
+    <div class="alert alert-warning">@TempData["Warning"]</div>
+}
+
 <h2>Lista angajaților</h2>
 
 <table class="table table-bordered">
@@ -8,6 +17,7 @@
             <th>Email</th>
             <th>UserName</th>
             <th>Activ</th>
+            <th>Acțiune</th>
         </tr>
     </thead>
     <tbody>
@@ -16,7 +26,25 @@
             <tr>
                 <td>@user.Email</td>
                 <td>@user.UserName</td>
-                <td>@(user.LockoutEnabled && user.LockoutEnd > DateTime.Now ? "Inactiv" : "Activ")</td>
+                <td>
+                    @(user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now ? "Inactiv" : "Activ")
+                </td>
+                <td>
+                    @if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now)
+                    {
+                        <form asp-action="ToggleActive" method="post">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">Activează</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="ToggleActive" method="post">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">Dezactivează</button>
+                        </form>
+                    }
+                </td>
             </tr>
         }
     </tbody>

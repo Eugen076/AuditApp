@@ -1,0 +1,73 @@
+﻿@model dynamic
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2 class="mb-4">Dashboard de Monitorizare</h2>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="p-3 mb-3 border rounded bg-light">
+            <h4 class="text-muted">Angajați</h4>
+            <h2>@Model.TotalEmployees</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="p-3 mb-3 border rounded bg-light">
+            <h4 class="text-muted">Clienți</h4>
+            <h2>@Model.TotalCustomers</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="p-3 mb-3 border rounded bg-light">
+            <h4 class="text-muted">Conturi blocate</h4>
+            <h2>@Model.LoginAlerts</h2>
+        </div>
+    </div>
+
+    </div>
+    <div class="col-md-3">
+        <div class="p-3 mb-3 border rounded bg-light">
+            <h4 class="text-muted">Vulnerabilități</h4>
+            <h2>-</h2>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h4>Grafic Activitate</h4>
+    <div class="border rounded bg-white p-4">
+        <canvas id="loginChart" height="100"></canvas>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('loginChart').getContext('2d');
+        const loginChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)Model.LoginsLogs).Select(l => l.Date))),
+                datasets: [{
+                    label: 'Logări pe zi',
+                    data: @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)Model.LoginsLogs).Select(l => l.Count))),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                }
+            }
+        });
+    </script>
+}
