@@ -1,103 +1,83 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - WebApplication1</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/WebApplication1.styles.css" asp-append-version="true" />
+
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+
     <style>
         html, body {
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            background-color: #f8f9fa;
         }
-
-        .navbar-dark .nav-link {
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-            .navbar-dark .nav-link:hover {
-                color: white;
-            }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen">
+   
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a class="text-white text-xl font-bold" href="/">Bank</a>
 
-    <!-- NAVBAR dark top -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-        <a class="navbar-brand" href="#">WebApplication1</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            <button class="lg:hidden text-white focus:outline-none" id="menu-toggle">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
 
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav me-auto">
-                @if (User.IsInRole("Admin"))
-                {
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
-                            <i class="fas fa-chart-line me-1"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Employee" asp-action="Index">
-                            <i class="fas fa-user-tie me-1"></i> Angajați
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Account" asp-action="Registration">
-                            <i class="fas fa-user-plus me-1"></i> Adaugă utilizator
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="AuditLog" asp-action="Index">
-                            <i class="fas fa-file-alt me-1"></i> Audit Log
-                        </a>
-                    </li>
-                }
-                @if (User.IsInRole("Employee"))
-                {
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Customers" asp-action="Index">
-                            <i class="fas fa-folder-open me-1"></i> Clienți
-                        </a>
-                    </li>
-                }
-            </ul>
-
-            <!-- Login info -->
-            <div class="d-flex">
-                @await Html.PartialAsync("_LoginPartial")
+            <div class="hidden lg:flex lg:items-center" id="navbarContent">
+                <ul class="flex space-x-4">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-chart-line mr-1"></i> Dashboard</a></li>
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Employee" asp-action="Index"><i class="fas fa-user-tie mr-1"></i> Angajați</a></li>
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Account" asp-action="Registration"><i class="fas fa-user-plus mr-1"></i> Adaugă utilizator</a></li>
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="AuditLog" asp-action="Index"><i class="fas fa-file-alt mr-1"></i> Audit Log</a></li>
+                    }
+                    @if (User.IsInRole("Employee"))
+                    {
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="EmployeeDashboard" asp-action="Index"><i class="fas fa-chart-bar mr-1"></i> Dashboard</a></li>
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Customers" asp-action="Index"><i class="fas fa-users mr-1"></i> Clienți</a></li>
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Transactions" asp-action="Index"><i class="fas fa-exchange-alt mr-1"></i> Tranzacții</a></li>
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="ExchangeRates" asp-action="Index"><i class="fa fa-chart-line mr-1"></i> Curs valutar</a></li>
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Credit" asp-action="Index"><i class="fa fa-credit-card mr-1"></i> Credite</a></li>
+                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Settings" asp-action="Index"><i class="fas fa-cog mr-1"></i> Setări</a></li>
+                    }
+                    @if (User.IsInRole("Client"))
+                    {
+                        <li><a asp-controller="Transactions" asp-action="Index">Tranzacții</a></li>
+                        <li><a asp-controller="Transactions" asp-action="Create">Depune / Retrage</a></li>
+                    }
+                </ul>
+                <div class="ml-4">
+                    @await Html.PartialAsync("_LoginPartial")
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Conținut principal -->
-    <div class="container-fluid mt-4">
-        <main role="main" class="pb-3">
+  
+    <div class="container mx-auto mt-6 px-4">
+        <main role="main" class="pb-6">
             @RenderBody()
         </main>
     </div>
-
-    <!-- Footer -->
-    <footer class="border-top footer text-muted bg-light py-3 mt-5">
-        <div class="container d-flex justify-content-between align-items-center">
-            <span>&copy; 2025 - WebApplication1 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></span>
-            <a href="https://www.facebook.com/" target="_blank" class="text-primary text-decoration-none d-flex align-items-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Facebook_Logo_2023.png" alt="Facebook" width="24" height="24" class="me-2">
-                Follow us on Facebook
-            </a>
-        </div>
-    </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        document.getElementById('menu-toggle')?.addEventListener('click', function () {
+            const navbarContent = document.getElementById('navbarContent');
+            navbarContent?.classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>

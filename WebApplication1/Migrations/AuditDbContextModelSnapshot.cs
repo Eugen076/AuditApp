@@ -222,6 +222,13 @@ namespace WebApplication1.Migrations
                         .HasMaxLength(24)
                         .HasColumnType("nvarchar(24)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
@@ -277,6 +284,109 @@ namespace WebApplication1.Migrations
                     b.HasIndex("CreatedById");
 
                     b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("WebApplication1.Entities.ExchangeRate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BaseCurrency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<string>("TargetCurrency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExchangeRates");
+                });
+
+            modelBuilder.Entity("WebApplication1.Entities.Loan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("InterestRate")
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<int>("LoanTermMonths")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LoanType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("MonthlyPayment")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalAmountPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Loans");
+                });
+
+            modelBuilder.Entity("WebApplication1.Entities.Transaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PerformedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SourceAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TargetAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceAccountId");
+
+                    b.HasIndex("TargetAccountId");
+
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("WebApplication1.Entities.UserAccount", b =>
@@ -434,9 +544,39 @@ namespace WebApplication1.Migrations
                     b.Navigation("CreatedBy");
                 });
 
+            modelBuilder.Entity("WebApplication1.Entities.Loan", b =>
+                {
+                    b.HasOne("WebApplication1.Entities.Customer", "Customer")
+                        .WithMany("Loans")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("WebApplication1.Entities.Transaction", b =>
+                {
+                    b.HasOne("WebApplication1.Entities.BankAccount", "SourceAccount")
+                        .WithMany()
+                        .HasForeignKey("SourceAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Entities.BankAccount", "TargetAccount")
+                        .WithMany()
+                        .HasForeignKey("TargetAccountId");
+
+                    b.Navigation("SourceAccount");
+
+                    b.Navigation("TargetAccount");
+                });
+
             modelBuilder.Entity("WebApplication1.Entities.Customer", b =>
                 {
                     b.Navigation("BankAccounts");
+
+                    b.Navigation("Loans");
                 });
 
             modelBuilder.Entity("WebApplication1.Entities.UserAccount", b =>

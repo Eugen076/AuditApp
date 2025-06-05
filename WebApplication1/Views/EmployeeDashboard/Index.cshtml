@@ -1,0 +1,58 @@
+﻿@model WebApplication1.Models.EmployeeDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard Angajat";
+}
+
+<div class="container mx-auto py-8">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Dashboard Angajat</h2>
+
+    <!-- KPI Boxes -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded shadow p-6 text-center">
+            <h6 class="uppercase text-sm text-gray-500 mb-1">Total Clienți</h6>
+            <h2 class="text-3xl font-bold text-gray-800">@Model.TotalClients</h2>
+        </div>
+        <div class="bg-white rounded shadow p-6 text-center">
+            <h6 class="uppercase text-sm text-gray-500 mb-1">Conturi Deschise</h6>
+            <h2 class="text-3xl font-bold text-gray-800">@Model.TotalAccounts</h2>
+        </div>
+        <div class="bg-white rounded shadow p-6 text-center">
+            <h6 class="uppercase text-sm text-gray-500 mb-1">Tranzacții în ultima lună</h6>
+            <h2 class="text-3xl font-bold text-gray-800">@Model.TotalTransactions</h2>
+        </div>
+    </div>
+
+    <!-- Client Table -->
+    <div class="bg-white rounded shadow">
+        <div class="bg-gray-800 text-white text-lg font-semibold px-6 py-4 rounded-t">
+            Clienții tăi
+        </div>
+        <div class="p-6 overflow-x-auto">
+            @if (Model.ClientSummaries != null && Model.ClientSummaries.Any())
+            {
+                <table class="w-full table-auto border border-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="text-left px-4 py-2 border-b">Nume</th>
+                            <th class="text-center px-4 py-2 border-b">Număr conturi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var client in Model.ClientSummaries)
+                        {
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-2 border-b">@client.ClientName</td>
+                                <td class="px-4 py-2 border-b text-center">@client.AccountCount</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-gray-500">Nu există clienți disponibili.</p>
+            }
+        </div>
+    </div>
+</div>

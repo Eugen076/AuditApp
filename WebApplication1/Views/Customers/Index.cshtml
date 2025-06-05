@@ -1,98 +1,84 @@
 ﻿@model IEnumerable<WebApplication1.Entities.Customer>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Clienți";
+    var searchQuery = Context.Request.Query["search"].ToString();
 }
-@* @if (TempData["Success"] != null)
-{
-    <div class="alert alert-success" role="alert">
-        @TempData["Success"]
+
+<div class="max-w-6xl mx-auto py-10">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Clienți</h2>
+
+    <!-- Search & Create -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <a asp-action="Create" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow">
+            + Adaugă Client
+        </a>
+
+        <form method="get" class="flex gap-2">
+            <input type="text" name="search" class="border border-gray-300 rounded px-3 py-2 w-64 focus:outline-none focus:ring"
+                   placeholder="Caută client..." value="@searchQuery" />
+            <button type="submit" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded shadow">
+                🔍
+            </button>
+        </form>
     </div>
-} *@
 
+    <!-- Tabel -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white rounded shadow">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="text-left px-4 py-3">Nume</th>
+                    <th class="text-right px-4 py-3">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var client in Model)
+                {
+                    <tr class="border-b">
+                        <td class="px-4 py-3">@client.FullName</td>
+                        <td class="px-4 py-3 text-right">
+                            <div class="flex justify-end flex-wrap gap-2">
+                                <button type="button" class="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded toggle-details" data-id="@client.Id">
+                                    Detalii
+                                </button>
+                                <a asp-action="Edit" asp-route-id="@client.Id" class="text-sm bg-yellow-100 hover:bg-yellow-200 px-3 py-1 rounded">
+                                    Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@client.Id" class="text-sm bg-red-100 hover:bg-red-200 px-3 py-1 rounded">
+                                    Șterge
+                                </a>
+                                <a asp-controller="BankAccounts" asp-action="Index" asp-route-customerId="@client.Id" class="text-sm bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded">
+                                    Conturi
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="details-@client.Id" class="hidden">
+                        <td colspan="2" class="bg-gray-50 px-4 py-4">
+                            <div class="text-sm text-gray-700 space-y-1">
+                                <div><strong>CNP:</strong> @client.CNP</div>
+                                <div><strong>Telefon:</strong> @client.Phone</div>
+                                <div><strong>Adresă:</strong> @client.Address</div>
+                                <div><strong>Data nașterii:</strong> @client.DateOfBirth.ToString("dd.MM.yyyy")</div>
+                                <div><strong>Creat la:</strong> @client.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CNP)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Phone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DateOfBirth)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CNP)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Phone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateOfBirth)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
-                <a asp-controller="BankAccounts" asp-action="Index" asp-route-customerId="@item.Id" class="btn btn-info">Vezi Conturi</a>
-
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
-@* @section Scripts {
+@section Scripts {
     <script>
-        setTimeout(function () {
-            const alertBox = document.querySelector('.alert-success');
-            if (alertBox) {
-                alertBox.style.transition = 'opacity 0.5s ease';
-                alertBox.style.opacity = '0';
-                setTimeout(() => alertBox.remove(), 500);
-            }
-        }, 4000); // Dispare după 4 secunde
+        document.querySelectorAll(".toggle-details").forEach(button => {
+            button.addEventListener("click", function () {
+                const id = this.getAttribute("data-id");
+                const row = document.getElementById("details-" + id);
+                row.classList.toggle("hidden");
+            });
+        });
     </script>
-} *@
+}

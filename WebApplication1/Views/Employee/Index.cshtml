@@ -2,50 +2,55 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="bg-green-100 text-green-700 px-4 py-3 rounded mb-4">
+        @TempData["Success"]
+    </div>
 }
 @if (TempData["Warning"] != null)
 {
-    <div class="alert alert-warning">@TempData["Warning"]</div>
+    <div class="bg-yellow-100 text-yellow-700 px-4 py-3 rounded mb-4">
+        @TempData["Warning"]
+    </div>
 }
 
-<h2>Lista angajaților</h2>
+<div class="max-w-5xl mx-auto py-10">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Lista angajaților</h2>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Email</th>
-            <th>UserName</th>
-            <th>Activ</th>
-            <th>Acțiune</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.Email</td>
-                <td>@user.UserName</td>
-                <td>
-                    @(user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now ? "Inactiv" : "Activ")
-                </td>
-                <td>
-                    @if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now)
-                    {
-                        <form asp-action="ToggleActive" method="post">
-                            <input type="hidden" name="id" value="@user.Id" />
-                            <button type="submit" class="btn btn-outline-secondary btn-sm">Activează</button>
-                        </form>
-                    }
-                    else
-                    {
-                        <form asp-action="ToggleActive" method="post">
-                            <input type="hidden" name="id" value="@user.Id" />
-                            <button type="submit" class="btn btn-outline-secondary btn-sm">Dezactivează</button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white shadow rounded">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="text-left px-4 py-3">Email</th>
+                    <th class="text-left px-4 py-3">UserName</th>
+                    <th class="text-left px-4 py-3">Activ</th>
+                    <th class="text-left px-4 py-3">Acțiune</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td class="px-4 py-3">@user.Email</td>
+                        <td class="px-4 py-3">@user.UserName</td>
+                        <td class="px-4 py-3">
+                            @(user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now ? "Inactiv" : "Activ")
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-2 flex-wrap">
+                                <form asp-action="ToggleActive" method="post">
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-sm px-3 py-1 rounded border">
+                                        @(user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now ? "Activează" : "Dezactivează")
+                                    </button>
+                                </form>
+                                <a asp-action="EditPassword" asp-route-id="@user.Id" class="bg-gray-100 hover:bg-gray-200 text-sm px-3 py-1 rounded border inline-block">
+                                    Resetează parola
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

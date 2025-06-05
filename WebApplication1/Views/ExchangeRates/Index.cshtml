@@ -1,0 +1,206 @@
+﻿@using System.Globalization
+@using Newtonsoft.Json.Linq
+
+@{
+    ViewData["Title"] = "Curs Valutar";
+
+    string selectedCurrency = ViewBag.SelectedCurrency as string ?? "EUR";
+    string currencyName = ViewBag.CurrencyName as string ?? selectedCurrency;
+    string selectedDate = ViewBag.Date as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+
+    var history = ViewBag.History as SortedDictionary<string, decimal>;
+    var cursuri = ViewBag.TabelCursuri as List<(string Symbol, string Nume, decimal Rate)>;
+    var symbols = ViewBag.Symbols as IDictionary<string, JToken>;
+
+    var labelJson = System.Text.Json.JsonSerializer.Serialize(history?.Keys ?? Enumerable.Empty<string>());
+    var inverseValues = (history != null && history.Any())
+        ? history.Values.Select(v => 1 / v).ToList()
+        : new List<decimal>();
+    var valueJson = System.Text.Json.JsonSerializer.Serialize(inverseValues);
+}
+
+
+<body class="bg-white min-h-screen">
+    <div class="container mx-auto p-6 max-w-7xl">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Curs Valutar</h1>
+            <p class="text-gray-600">Actualizat la @DateTime.Now.ToString("dd MMMM yyyy, HH:mm zzz")</p>
+        </header>
+
+       
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+           
+            <div class="lg:col-span-3 space-y-6">
+                
+              <div class="bg-white shadow-md rounded-lg p-6">
+                    <form method="get" class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Data:</label>
+                            <input type="date" name="date" value="@selectedDate" class="mt-1 p-2 border rounded-md w-full md:w-48">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Valută:</label>
+                            <select name="selectedCurrency" class="mt-1 p-2 border rounded-md w-full md:w-48">
+                                @foreach (var pair in symbols)
+                                {
+                                    var symbol = pair.Key;
+                                    var name = pair.Value.ToString();
+                                    <option value="@symbol" selected="@(symbol == selectedCurrency)">@symbol - @name</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Afișează</button>
+                    </form>
+                
+
+                <!--Grafic -->
+                @if (history != null && history.Any())
+                {
+                    string lastDate = history.Last().Key;
+                    decimal inverse = 1 / history.Last().Value;
+
+                   
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Evoluție curs @currencyName față de RON (ultimele 7 zile)</h2>
+                        <div class="h-64">
+                            <canvas id="rateChart"></canvas>
+                        </div>
+                        <p class="mt-4 text-gray-600">
+                            <strong>1 @currencyName</strong> = <strong>@inverse.ToString("0.####", CultureInfo.InvariantCulture)</strong> RON
+                            <span class="text-muted">(pe baza cursului din @lastDate)</span>
+                        </p>
+
+                        @section Scripts {
+                        <script>
+                            const labels = @Html.Raw(labelJson);
+                            const data = @Html.Raw(valueJson);
+
+                            console.log("Labels:", labels);
+                            console.log("Data:", data);
+
+                            const ctx = document.getElementById("rateChart");
+                            if (ctx && labels.length > 0 && data.length > 0) {
+                                new Chart(ctx, {
+                                    type: "line",
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: "1 @selectedCurrency în RON",
+                                            data: data,
+                                            borderColor: "#3b82f6",
+                                            backgroundColor: "rgba(59, 130, 246, 0.2)",
+                                            borderWidth: 2,
+                                            tension: 0.2,
+                                            pointRadius: 4,
+                                            pointBackgroundColor: "#3b82f6"
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        scales: {
+                                            y: {
+                                                beginAtZero: false,
+                                                title: { display: true, text: "Curs (RON)" }
+                                            },
+                                            x: {
+                                                title: { display: true, text: "Data" }
+                                            }
+                                        },
+                                        plugins: {
+                                            legend: { position: "top" },
+                                            tooltip: { mode: "index", intersect: false }
+                                        }
+                                    }
+                                });
+                            }
+                        </script>
+                        }
+
+                    
+                }
+                else
+                {
+                       <p class="text-gray-600">Nu există date disponibile pentru grafic.</p>    
+                }
+               </div>
+                
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Curs valutar – 1 unitate valută în RON (la data de @selectedDate)</h2>
+                    <table class="w-full table-auto text-left">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="p-3">Valută</th>
+                                <th class="p-3">Denumire</th>
+                                <th class="p-3">Curs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in cursuri ?? new List<(string Symbol, string Nume, decimal Rate)>())
+                            {
+                                var inv = 1 / item.Rate;
+                                var flagCode = item.Symbol.Substring(0, 2).ToLower();
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-3 flex items-center">
+                                        <img src="@($"https://flagcdn.com/24x18/{flagCode}.png")" alt="@item.Symbol" class="mr-2"> @item.Symbol
+                                    </td>
+                                    <td class="p-3">@item.Nume</td>
+                                    <td class="p-3">@inv.ToString("0.####", CultureInfo.InvariantCulture)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            
+            <div class="lg:col-span-1">
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">Convertor Rapid</h2>
+                    <form method="get" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium">Din:</label>
+                            <select name="convertFrom" class="w-full p-2 border rounded-md bg-white text-gray-800">
+                                @foreach (var pair in symbols ?? new Dictionary<string, JToken>())
+                                {
+                                    var symbol = pair.Key;
+                                    <option value="@symbol" selected="@(symbol == ViewBag.ConvertFrom)">@symbol</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium">În:</label>
+                            <select name="convertTo" class="w-full p-2 border rounded-md bg-white text-gray-800">
+                                @foreach (var pair in symbols ?? new Dictionary<string, JToken>())
+                                {
+                                    var symbol = pair.Key;
+                                    <option value="@symbol" selected="@(symbol == ViewBag.ConvertTo)">@symbol</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium">Suma:</label>
+                            <input type="number" step="0.01" name="amount" value="@ViewBag.Amount" class="w-full p-2 border rounded-md bg-white text-gray-800">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">Calculează</button>
+
+                        @if (ViewBag.ConvertResult != null)
+                        {
+                            var result = (decimal)ViewBag.ConvertResult;
+                            var formatted = result.ToString("0.####", CultureInfo.InvariantCulture);
+                            <div class="text-center bg-white text-gray-800 mt-4 p-2 rounded-md">
+                                <strong>@ViewBag.Amount @ViewBag.ConvertFrom</strong><br />
+                                = <strong>@formatted</strong> @ViewBag.ConvertTo
+                            </div>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        
+        <footer class="mt-10 text-center text-gray-500">
+            <p>Design actualizat pentru curs valutar.</p>
+        </footer>
+    </div>
+</body>
+</html>

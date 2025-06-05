@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using WebApplication1.Enums;
 
-namespace WebApplication1.Entities
+namespace WebApplication1.Entities  
 {
     public class BankAccount
     {
@@ -22,6 +22,11 @@ namespace WebApplication1.Entities
         [Required]
         [StringLength(10)]
         public string Currency { get; set; } = "RON";
+
+        [Required]
+        public AccountType Type { get; set; }
+
+        public bool IsActive { get; set; } = true;
 
         [ValidateNever]
         [DataType(DataType.DateTime)]

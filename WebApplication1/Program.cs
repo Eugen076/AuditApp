@@ -29,6 +29,12 @@ builder.Services.AddDefaultIdentity<UserAccount>(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<ICreditService, CreditService>();
+
+builder.Services.AddHttpClient();
+
+/*builder.Services.AddHttpClient();
+builder.Services.AddScoped<IExchangeRateService, ExchangeRateService>();*/
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -36,7 +42,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 
-// Add services to the container.
+
 builder.Services.AddControllersWithViews();
 
 
@@ -44,7 +50,7 @@ builder.Services.AddSingleton<EmailService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -63,16 +69,15 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserAccount>>();
 
-    var roles = new[] { "Admin", "Employee" };
+    var roles = new[] { "Admin", "Employee", "Client" };
 
-   
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))
@@ -81,9 +86,9 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-   
+
     string adminEmail = "admin@yahoo.com";
-    string adminPassword = "Admin123!"; 
+    string adminPassword = "Admin123!";
 
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
     if (adminUser == null)
@@ -101,7 +106,28 @@ using (var scope = app.Services.CreateScope())
             await userManager.AddToRoleAsync(user, "Admin");
         }
     }
+
+    string clientEmail = "client@demo.com";
+    string clientPassword = "Client123!";
+
+    var clientUser = await userManager.FindByEmailAsync(clientEmail);
+    if (clientUser == null)
+    {
+        var user = new UserAccount
+        {
+            UserName = clientEmail,
+            Email = clientEmail,
+            EmailConfirmed = true
+        };
+
+        var result = await userManager.CreateAsync(user, clientPassword);
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(user, "Client");
+        }
+    }
 }
+
 
 
 app.Run();

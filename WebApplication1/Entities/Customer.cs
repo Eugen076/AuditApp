@@ -47,6 +47,7 @@ namespace WebApplication1.Entities
 
         [ValidateNever]
         public ICollection<BankAccount> BankAccounts { get; set; }
+        public ICollection<Loan> Loans { get; set; }
     }
 
 }

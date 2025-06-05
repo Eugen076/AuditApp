@@ -4,30 +4,35 @@
     ViewData["Title"] = "Șterge Cont Bancar";
 }
 
-<h1>Șterge Cont Bancar</h1>
+<div class="max-w-2xl mx-auto py-10">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Șterge Cont Bancar</h1>
 
-<h3>Sigur dorești să ștergi acest cont?</h3>
+    <h3 class="text-lg text-red-600 font-semibold mb-6">Sigur dorești să ștergi acest cont?</h3>
 
-<div>
-    <h4>Detalii Cont:</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">IBAN</dt>
-        <dd class="col-sm-10">@Model.IBAN</dd>
+    <div class="bg-white rounded shadow p-6 mb-6">
+        <h4 class="text-xl font-semibold text-gray-700 mb-4">Detalii Cont</h4>
+        <dl class="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3">
+            <dt class="text-gray-500 font-medium">IBAN</dt>
+            <dd class="text-gray-800 col-span-2">@Model.IBAN</dd>
 
-        <dt class="col-sm-2">Sold</dt>
-        <dd class="col-sm-10">@Model.Balance</dd>
+            <dt class="text-gray-500 font-medium">Sold</dt>
+            <dd class="text-gray-800 col-span-2">@Model.Balance</dd>
 
-        <dt class="col-sm-2">Monedă</dt>
-        <dd class="col-sm-10">@Model.Currency</dd>
+            <dt class="text-gray-500 font-medium">Monedă</dt>
+            <dd class="text-gray-800 col-span-2">@Model.Currency</dd>
 
-        <dt class="col-sm-2">Client</dt>
-        <dd class="col-sm-10">@Model.Customer?.FullName</dd>
-    </dl>
+            <dt class="text-gray-500 font-medium">Client</dt>
+            <dd class="text-gray-800 col-span-2">@Model.Customer?.FullName</dd>
+        </dl>
+    </div>
 
-    <form asp-action="Delete">
+    <form asp-action="Delete" class="flex gap-4">
         <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Șterge</button>
-        <a asp-action="Index" asp-route-customerId="@Model.CustomerId" class="btn btn-secondary">Renunță</a>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded shadow">
+            Șterge
+        </button>
+        <a asp-action="Index" asp-route-customerId="@Model.CustomerId" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded shadow">
+            Renunță
+        </a>
     </form>
 </div>

@@ -1,0 +1,128 @@
+﻿@model WebApplication1.Models.CreditViewModel
+
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Simulator de Credite</h2>
+
+    <form asp-action="Calculate" method="post" class="space-y-6" onsubmit="formatInputs()">
+        <input type="hidden" id="creditType" name="CreditType" value="@Model.CreditType" />
+
+        <div class="flex space-x-4 mb-6">
+            <button type="submit"
+                    onclick="document.getElementById('creditType').value='Nevoi personale';"
+                    class="@(Model.CreditType == "Nevoi personale" ? "bg-blue-200" : "bg-gray-100") text-gray-800 font-semibold py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-200">
+                Nevoi personale
+            </button>
+
+            <button type="submit"
+                    onclick="document.getElementById('creditType').value='Imobiliar-Ipotecar';"
+                    class="@(Model.CreditType == "Imobiliar-Ipotecar" ? "bg-blue-200" : "bg-gray-100") text-gray-800 font-semibold py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-200">
+                Imobiliar-Ipotecar
+            </button>
+        </div>
+
+        <div>
+            <p class="text-lg font-medium text-gray-700 mb-4">Care este suma pe care vrei să o împrumuți?</p>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div class="flex-1">
+                <input id="loanAmountSlider" type="range"
+                       min="@(Model.CreditType == "Imobiliar-Ipotecar" ? 7000 : 5000)"
+                       max="@(Model.CreditType == "Imobiliar-Ipotecar" ? 1200000 : 250000)"
+                       step="100"
+                       value="@Model.LoanAmount"
+                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                       oninput="updateLoanAmount(this.value)" />
+                <div class="flex justify-between text-sm text-gray-600 mt-1">
+                    <span>@(Model.CreditType == "Imobiliar-Ipotecar" ? "7.000 LEI" : "5.000 LEI")</span>
+                    <span>@(Model.CreditType == "Imobiliar-Ipotecar" ? "1.200.000 LEI" : "250.000 LEI")</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <input asp-for="LoanAmount" id="loanAmountInput" type="text" class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" oninput="updateSlider(this.value)" />
+                <select asp-for="Currency" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="LEI">LEI</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Termen:</label>
+            @if (Model.CreditType == "Nevoi personale")
+            {
+                <select asp-for="LoanTermYears" class="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i ani</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <select asp-for="LoanTermYears" class="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    @foreach (var year in new[] { 1, 5, 10, 20, 30 })
+                    {
+                        <option value="@year">@year ani</option>
+                    }
+                </select>
+            }
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Calculează rata
+        </button>
+    </form>
+
+    @if (Model.MonthlyPayment > 0 && Model.LoanAmount >= 5000 && Model.LoanTermMonths > 0)
+    {
+        <div class="mt-6 flex items-center space-x-4 transition-opacity duration-300 ease-in">
+            <div class="flex-1 p-4 bg-gray-100 rounded-md">
+                <h4 class="text-lg font-semibold text-gray-800">
+                    Rată lunară: @Model.MonthlyPayment.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) LEI
+                </h4>
+            </div>
+
+            <a asp-action="DetailedCalculation"
+               asp-controller="Credit"
+               asp-route-loanAmount="@Model.LoanAmount"
+               asp-route-loanTermMonths="@Model.LoanTermMonths"
+               asp-route-monthlyPayment="@Model.MonthlyPayment"
+               asp-route-creditType="@Model.CreditType"
+               class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md border border-blue-500 hover:bg-gray-300 focus:outline-none">
+                Vezi calcul detaliat
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Buton creare credit cu preluare valori -->
+<a asp-controller="Loan" asp-action="Create"
+   asp-route-loanAmount="@Model.LoanAmount"
+   asp-route-loanType="@Model.CreditType"
+   asp-route-loanTermYears="@Model.LoanTermYears"
+   class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow transition">
+    Creează Credit Nou
+</a>
+
+<script>
+    function updateLoanAmount(value) {
+        document.getElementById('loanAmountInput').value = value;
+    }
+
+    function updateSlider(value) {
+        document.getElementById('loanAmountSlider').value = value;
+    }
+
+    function formatInputs() {
+        var loanAmountInput = document.getElementById('loanAmountInput');
+        loanAmountInput.value = loanAmountInput.value.replace(',', '.').replace(/[^0-9.]/g, '');
+    }
+
+    window.onload = function () {
+        document.getElementById('loanAmountSlider').value = @Model.LoanAmount;
+    };
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

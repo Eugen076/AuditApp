@@ -1,72 +1,55 @@
 ﻿@model WebApplication1.Entities.Customer
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalii Client";
 }
 
-<h1>Details</h1>
+<div class="max-w-3xl mx-auto py-10">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Detalii Client</h1>
 
-<div>
-    <h4>Customer</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FullName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FullName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CNP)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CNP)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Phone)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Phone)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsActive)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsActive)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DateOfBirth)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateOfBirth)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedBy)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedBy.Id)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <div class="bg-white p-6 rounded shadow border mb-6">
+        <dl class="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm">
+            <dt class="font-medium text-gray-500">Nume complet</dt>
+            <dd class="text-gray-800 sm:col-span-2">@Model.FullName</dd>
+
+            <dt class="font-medium text-gray-500">CNP</dt>
+            <dd class="text-gray-800 sm:col-span-2">@Model.CNP</dd>
+
+            <dt class="font-medium text-gray-500">Email</dt>
+            <dd class="text-gray-800 sm:col-span-2">@Model.Email</dd>
+
+            <dt class="font-medium text-gray-500">Telefon</dt>
+            <dd class="text-gray-800 sm:col-span-2">@Model.Phone</dd>
+
+            <dt class="font-medium text-gray-500">Adresă</dt>
+            <dd class="text-gray-800 sm:col-span-2">@Model.Address</dd>
+
+            <dt class="font-medium text-gray-500">Activ</dt>
+            <dd class="text-gray-800 sm:col-span-2">@Model.IsActive</dd>
+
+            <dt class="font-medium text-gray-500">Data nașterii</dt>
+            <dd class="text-gray-800 sm:col-span-2">
+                @Model.DateOfBirth.ToString("dd.MM.yyyy")
+            </dd>
+
+            <dt class="font-medium text-gray-500">Creat la</dt>
+            <dd class="text-gray-800 sm:col-span-2">
+                @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+            </dd>
+
+            <dt class="font-medium text-gray-500">Creat de</dt>
+            <dd class="text-gray-800 sm:col-span-2">@Model.CreatedBy?.Id</dd>
+        </dl>
+    </div>
+
+    <div class="flex gap-4">
+        <a asp-action="Edit" asp-route-id="@Model?.Id"
+           class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-2 rounded shadow">
+            Editează
+        </a>
+        <a asp-action="Index"
+           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded shadow">
+            Înapoi la listă
+        </a>
+    </div>
 </div>

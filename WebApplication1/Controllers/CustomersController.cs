@@ -24,13 +24,24 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Customers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search)
         {
-            var customers = await _context.Customers
+            var customers = _context.Customers
                 .Include(c => c.CreatedBy)
-                .ToListAsync();
+                .AsQueryable();
 
-            return View(customers);
+            if (!string.IsNullOrEmpty(search))
+            {
+                customers = customers.Where(c =>
+                    c.FullName.Contains(search) ||
+                    c.Email.Contains(search) ||
+                    c.Phone.Contains(search));
+            }
+
+            ViewBag.SearchQuery = search; 
+
+            return View(await customers.ToListAsync());
+
         }
 
         // GET: Customers/Details/5

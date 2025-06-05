@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Entities;
+using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
 {
@@ -15,6 +16,14 @@ namespace WebApplication1.Controllers
             _userManager = userManager;
         }
 
+       
+        public async Task<IActionResult> Index()
+        {
+            var employees = await _userManager.GetUsersInRoleAsync("Employee");
+            return View(employees);
+        }
+
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleActive(string id)
@@ -37,10 +46,65 @@ namespace WebApplication1.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Index()
+
+        [HttpGet]
+        public async Task<IActionResult> EditPassword(string id)
         {
-            var employees = await _userManager.GetUsersInRoleAsync("Employee"); // sau "Employee"
-            return View(employees);
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData["ErrorMessage"] = "Id-ul utilizatorului este gol.";
+                return RedirectToAction("Index");
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Utilizatorul nu a fost găsit.";
+                return RedirectToAction("Index");
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                UserId = user.Id
+            };
+
+            return View(model);
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPassword([FromForm] ResetPasswordViewModel model)
+
+        {
+            Console.WriteLine($"DEBUG: UserId primit: {model.UserId}");
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Model invalid: UserId=" + model.UserId;
+                return View(model);
+            }
+
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "User not found.";
+                return RedirectToAction("Index");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Parola a fost resetată cu succes.";
+                return RedirectToAction("Index");
+            }
+
+            
+            TempData["ErrorMessage"] = "Resetarea parolei a eșuat: " + string.Join(", ", result.Errors.Select(e => e.Description));
+            return View(model);
+        }
+
     }
 }

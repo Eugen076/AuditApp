@@ -1,0 +1,99 @@
+﻿@model WebApplication1.Models.DetailedCalculationViewModel
+
+@{
+    var isIpotecar = Model.CreditType == "Imobiliar-Ipotecar";
+    var dobanda = isIpotecar ? "5.5%" : "8.5%";
+    var dae = isIpotecar ? "6.2%" : "10.17%";
+    var perioada = isIpotecar
+        ? $"{Model.LoanTermMonths} luni"
+        : $"{Model.LoanTermMonths / 12} ani";
+}
+
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Detalii Calcul Credit</h2>
+
+    <div class="mb-6">
+        <div class="flex justify-between text-sm text-gray-600">
+            <span>Produs</span>
+            <span>Generată în</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="font-semibold">@Model.CreditType</span>
+            <span class="font-semibold">@DateTime.Now.ToString("dd MMMM yyyy")</span>
+        </div>
+    </div>
+
+    <div class="border-t border-gray-200 my-4"></div>
+
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div>
+            <p class="text-sm text-gray-600">Moneda împrumutului</p>
+            <p class="font-semibold">LEI</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-600">Suma împrumutată</p>
+            <p class="font-semibold">@Model.LoanAmount.ToString("N2") LEI</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div>
+            <p class="text-sm text-gray-600">Perioada împrumutului</p>
+            <p class="font-semibold">@perioada</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-600">Valoare dobândă</p>
+            <p class="font-semibold">@dobanda</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div>
+            <p class="text-sm text-gray-600">Tip dobândă</p>
+            <p class="font-semibold">Fixă</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-600">Dobânda anuală efectivă</p>
+            <p class="font-semibold">@dae</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div>
+            <p class="text-sm text-gray-600">Rata lunară</p>
+            <p class="font-semibold">@Model.MonthlyPayment.ToString("N2") LEI / lună</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-600">Suma totală de plată</p>
+            <p class="font-semibold">@Model.TotalAmountPaid.ToString("N2") LEI</p>
+        </div>
+    </div>
+
+    <div class="border-t border-gray-200 my-4"></div>
+
+    <p class="text-sm text-gray-500">
+        Cifrele prezentate au scop informativ și nu reprezintă o ofertă finală. Dobânda este fixă pe toată perioada creditului și variază în funcție de tipul creditului.
+        @if (isIpotecar)
+        {
+            <text>
+                Dobânzile pentru creditele ipotecare pot varia între 4.25% și 7.00%. DAE reprezentative pot fi 5.1%, 5.8% sau 6.3%.
+            </text>
+        }
+        else
+        {
+            <text>
+                Dobânzile pentru creditele de nevoi personale pot varia între 6.49% și 18.50%. DAE reprezentative pot fi 10.25%, 12.20% sau 14.50%.
+            </text>
+        }
+    </p>
+
+    <form asp-action="BackToSimulator" method="get" class="mt-6">
+        <input type="hidden" name="loanAmount" value="@Model.LoanAmount" />
+        <input type="hidden" name="loanTermMonths" value="@Model.LoanTermMonths" />
+        <input type="hidden" name="monthlyPayment" value="@Model.MonthlyPayment" />
+        <input type="hidden" name="creditType" value="@Model.CreditType" />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+            Înapoi la simulator
+        </button>
+    </form>
+</div>

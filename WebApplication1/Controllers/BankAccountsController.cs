@@ -27,22 +27,30 @@ namespace WebApplication1.Controllers
             if (customerId.HasValue)
             {
                 query = query.Where(b => b.CustomerId == customerId);
-                ViewBag.CustomerId = customerId; 
+                ViewBag.CustomerId = customerId;
+
+                
+                var loans = await _context.Loans
+                    .Where(l => l.CustomerId == customerId)
+                    .ToListAsync();
+
+                ViewBag.Loans = loans;
             }
 
             var accounts = await query.ToListAsync();
             return View(accounts);
         }
 
+
         // GET: BankAccounts/Create
         public IActionResult Create(int customerId)
         {
             var bankAccount = new BankAccount
             {
-                CustomerId = customerId,  
-                IBAN = GenerateIBAN(),    
-                CreatedAt = DateTime.Now, 
-                Currency = "RON"          
+                CustomerId = customerId,
+                IBAN = GenerateIBAN(),
+                CreatedAt = DateTime.Now,
+                Currency = "RON"
             };
 
             return View(bankAccount);
@@ -115,7 +123,7 @@ namespace WebApplication1.Controllers
             }
 
             var customerId = bankAccount.CustomerId;
-       
+
             _context.BankAccounts.Remove(bankAccount);
             await _context.SaveChangesAsync();
 

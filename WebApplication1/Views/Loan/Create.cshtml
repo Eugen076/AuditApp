@@ -1,0 +1,54 @@
+﻿@model WebApplication1.Models.CreateLoanViewModel
+
+@{
+    ViewData["Title"] = "Creare Credit Nou";
+}
+
+<h2 class="text-2xl font-semibold mb-6">Creare Credit Nou</h2>
+
+<form asp-action="Create" method="post" class="space-y-4 bg-white p-6 rounded-xl shadow-md max-w-xl mx-auto">
+    @* Hidden return URL for redirect after submit *@
+    <input type="hidden" asp-for="ReturnUrl" />
+
+    <div class="form-group">
+        <label asp-for="CustomerId" class="block text-sm font-medium text-gray-700">Client</label>
+        <select asp-for="CustomerId" asp-items="Model.Customers" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <option value="">-- Selectează un client --</option>
+        </select>
+        <span asp-validation-for="CustomerId" class="text-red-500 text-sm"></span>
+    </div>
+
+    <div>
+        <label asp-for="Amount" class="block text-sm font-medium text-gray-700">Sumă Credit</label>
+        <input asp-for="Amount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+        <span asp-validation-for="Amount" class="text-red-500 text-sm"></span>
+    </div>
+
+    <div>
+        <label asp-for="LoanType" class="block text-sm font-medium text-gray-700">Tip Credit</label>
+        <select asp-for="LoanType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <option value="Nevoi personale">Nevoi personale</option>
+            <option value="Imobiliar-Ipotecar">Imobiliar-Ipotecar</option>
+        </select>
+        <span asp-validation-for="LoanType" class="text-red-500 text-sm"></span>
+    </div>
+
+    <div>
+        <label asp-for="LoanTermYears" class="block text-sm font-medium text-gray-700">Durată (ani)</label>
+        <input asp-for="LoanTermYears" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+        <span asp-validation-for="LoanTermYears" class="text-red-500 text-sm"></span>
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow">
+        Salvează Credit
+    </button>
+
+    <a href="@Model.ReturnUrl"
+       class="mt-2 inline-block text-blue-600 hover:underline text-sm">
+        Revino inapoi
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

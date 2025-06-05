@@ -1,48 +1,131 @@
 ﻿@model IEnumerable<WebApplication1.Entities.BankAccount>
+@using WebApplication1.Enums
 
 @{
     ViewData["Title"] = "Lista Conturi Bancare";
-}
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success" role="alert">
-        @TempData["SuccessMessage"]
-    </div>
+    var grouped = Model
+        .GroupBy(a => a.Type)
+        .ToDictionary(g => g.Key, g => g.ToList());
 }
 
+<div class="max-w-5xl mx-auto py-10">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-100 text-green-800 px-4 py-3 rounded mb-6">
+            @TempData["SuccessMessage"]
+        </div>
+    }
 
-<h1>@ViewData["Title"]</h1>
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">@ViewData["Title"]</h2>
 
-<p>
-    <a asp-action="Create" asp-route-customerId="@ViewBag.CustomerId" class="btn btn-primary">Adaugă Cont Nou</a>
-</p>
+    <a asp-action="Create" asp-route-customerId="@ViewBag.CustomerId"
+       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded mb-6 shadow">
+        Adaugă Cont Nou
+    </a>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>IBAN</th>
-            <th>Sold</th>
-            <th>Monedă</th>
-            <th>Creat La</th>
-            <th>Client</th>
-            <th>Acțiuni</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+    @foreach (AccountType type in Enum.GetValues(typeof(AccountType)).Cast<AccountType>())
+    {
+        var icon = type switch
         {
-            <tr>
-                <td>@item.IBAN</td>
-                <td>@item.Balance</td>
-                <td>@item.Currency</td>
-                <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
-                <td>@item.Customer?.FullName</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detalii</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Editează</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Șterge</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+            AccountType.Curent => "fas fa-university",
+            AccountType.Economii => "fas fa-piggy-bank",
+            _ => "fas fa-wallet"
+        };
+        var accounts = grouped.ContainsKey(type) ? grouped[type] : new List<WebApplication1.Entities.BankAccount>();
+        var collapseId = $"collapse-{type}";
+
+        <div class="mb-6 border border-gray-300 rounded">
+            <button type="button"
+                    class="w-full flex items-center justify-between px-4 py-3 bg-gray-100 hover:bg-gray-200 text-left font-semibold text-gray-800"
+                    onclick="document.getElementById('@collapseId').classList.toggle('hidden')">
+                <span><i class="@icon mr-2"></i> Conturi @type</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+
+            <div id="@collapseId" class="hidden px-4 py-3 bg-white">
+                @if (!accounts.Any())
+                {
+                    <p class="text-gray-500 italic">Nu există conturi de acest tip.</p>
+                }
+                else
+                {
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        @foreach (var acc in accounts)
+                        {
+                            <div class="bg-gray-50 border border-gray-200 rounded shadow p-4">
+                                <h6 class="text-lg font-bold text-gray-700">@acc.IBAN</h6>
+                                <p class="text-gray-600 mb-1">Sold: <strong>@String.Format("{0:N2}", acc.Balance) @acc.Currency</strong></p>
+                                <p class="text-gray-600 mb-1">Creat la: @acc.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+                                <p class="text-gray-600 mb-3">Status: @(acc.IsActive ? "Activ" : "Inactiv")</p>
+
+                                <div class="flex gap-2">
+                                    <a asp-action="Details" asp-route-id="@acc.Id" class="text-sm text-blue-600 hover:underline">Detalii</a>
+                                    <a asp-action="Edit" asp-route-id="@acc.Id" class="text-sm text-yellow-600 hover:underline">Editează</a>
+                                    <a asp-action="Delete" asp-route-id="@acc.Id" class="text-sm text-red-600 hover:underline">Șterge</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="mb-6 border border-gray-300 rounded">
+        <button type="button"
+                class="w-full flex items-center justify-between px-4 py-3 bg-gray-100 hover:bg-gray-200 text-left font-semibold text-gray-800"
+                onclick="document.getElementById('collapse-loans').classList.toggle('hidden')">
+            <span><i class="fas fa-file-invoice-dollar mr-2"></i> Credite</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+
+        <div id="collapse-loans" class="hidden px-4 py-3 bg-white">
+            @if (ViewBag.Loans != null && ((List<WebApplication1.Entities.Loan>)ViewBag.Loans).Any())
+            {
+                <table class="table-auto w-full text-sm border border-gray-200">
+                    <thead class="bg-gray-100 text-left">
+                        <tr>
+                            <th class="px-3 py-2">Tip</th>
+                            <th class="px-3 py-2">Sumă</th>
+                            <th class="px-3 py-2">Dobândă</th>
+                            <th class="px-3 py-2">Rată lunară</th>
+                            <th class="px-3 py-2">Durată</th>
+                            <th class="px-3 py-2">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var loan in (List<WebApplication1.Entities.Loan>)ViewBag.Loans)
+                        {
+                            <tr class="border-t">
+                                <td class="px-3 py-2">@loan.LoanType</td>
+                                <td class="px-3 py-2">@loan.Amount.ToString("N2") RON</td>
+                                <td class="px-3 py-2">@((loan.InterestRate * 100).ToString("0.#"))%</td>
+                                <td class="px-3 py-2">@loan.MonthlyPayment.ToString("N2")</td>
+                                <td class="px-3 py-2">@loan.LoanTermMonths</td>
+                                <td class="px-3 py-2">@loan.TotalAmountPaid.ToString("N2") RON</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-gray-500 italic">Nu există credite înregistrate pentru acest client.</p>
+            }
+
+            <div class="mt-4">
+                <a asp-controller="Loan" asp-action="Create"
+                   asp-route-customerId="@ViewBag.CustomerId"
+                   asp-route-loanType="Nevoi personale"
+                   asp-route-returnUrl="@Url.Action("Index", "BankAccounts", new { customerId = ViewBag.CustomerId })"
+                   class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded shadow">
+                    Creează Credit Nou
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+}

@@ -4,58 +4,64 @@
     ViewData["Title"] = "Audit Logs";
 }
 
-<h2 class="mt-4">Audit Logs</h2>
+<div class="container mx-auto py-8">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Audit Logs</h2>
 
-<form method="get" asp-controller="AuditLog" asp-action="Index" class="row g-2 mb-4">
-    <div class="col-md-3">
-        <input name="userName" class="form-control" placeholder="Username" value="@Model.UserName" />
-    </div>
-    <div class="col-md-3">
-        <input name="actionType" class="form-control" placeholder="Action" value="@Model.Action" />
-    </div>
-    <div class="col-md-2">
-        <input type="date" name="fromDate" class="form-control" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))" />
-    </div>
-    <div class="col-md-2">
-        <input type="date" name="toDate" class="form-control" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))" />
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Search</button>
-    </div>
-</form>
+    <!-- Export CSV Form -->
+    <form method="get" asp-action="ExportToCsv" class="mb-6 inline-block">
+        <input type="hidden" name="userName" value="@Model.UserName" />
+        <input type="hidden" name="actionType" value="@Model.Action" />
+        <input type="hidden" name="fromDate" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))" />
+        <input type="hidden" name="toDate" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))" />
+        <button type="submit" class="px-4 py-2 border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition rounded">
+            Exportă în CSV
+        </button>
+    </form>
 
+    <!-- Search Form -->
+    <form method="get" asp-controller="AuditLog" asp-action="Index" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <input name="userName" class="border border-gray-300 rounded px-3 py-2" placeholder="Username" value="@Model.UserName" />
+        <input name="actionType" class="border border-gray-300 rounded px-3 py-2" placeholder="Action" value="@Model.Action" />
+        <input type="date" name="fromDate" class="border border-gray-300 rounded px-3 py-2" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))" />
+        <input type="date" name="toDate" class="border border-gray-300 rounded px-3 py-2" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))" />
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">
+            Search
+        </button>
+    </form>
 
-<div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
-    <table class="table table-striped table-bordered align-middle">
-        <thead class="table-dark sticky-top">
-            <tr>
-                <th>Username</th>
-                <th>Action</th>
-                <th>Date / Time</th>
-                <th>IP Address</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model.Results != null && Model.Results.Any())
-            {
-                foreach (var log in Model.Results)
+    <!-- Table -->
+    <div class="overflow-x-auto max-h-[70vh] overflow-y-auto">
+        <table class="min-w-full text-sm border border-gray-200">
+            <thead class="bg-gray-800 text-white sticky top-0">
+                <tr>
+                    <th class="px-4 py-2 border-b text-left">Username</th>
+                    <th class="px-4 py-2 border-b text-left">Action</th>
+                    <th class="px-4 py-2 border-b text-left">Date / Time</th>
+                    <th class="px-4 py-2 border-b text-left">IP Address</th>
+                    <th class="px-4 py-2 border-b text-left">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Results != null && Model.Results.Any())
+                {
+                    foreach (var log in Model.Results)
+                    {
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 border-b">@log.UserName</td>
+                            <td class="px-4 py-2 border-b">@log.Action</td>
+                            <td class="px-4 py-2 border-b">@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy  HH:mm:ss")</td>
+                            <td class="px-4 py-2 border-b">@log.IpAddress</td>
+                            <td class="px-4 py-2 border-b">@log.Details</td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td>@log.UserName</td>
-                        <td>@log.Action</td>
-                        <td>@log.Timestamp.ToLocalTime().ToString("dd.MM.yyyy  HH:mm:ss")</td>
-                        <td>@log.IpAddress</td>
-                        <td>@log.Details</td>
+                        <td colspan="5" class="px-4 py-2 text-center text-gray-500">No logs found.</td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="5" class="text-center text-muted">No logs found.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>

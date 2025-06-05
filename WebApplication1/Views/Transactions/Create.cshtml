@@ -1,0 +1,49 @@
+﻿@using WebApplication1.Enums
+
+@{
+    ViewData["Title"] = "Nouă tranzacție";
+    var accounts = ViewBag.Accounts as List<WebApplication1.Entities.BankAccount>;
+}
+
+<h1 class="text-2xl font-bold mb-6">Înregistrează o tranzacție</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="text-red-600 mb-4">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="text-green-600 mb-4">@TempData["Success"]</div>
+}
+
+<form asp-action="Create" method="post" class="space-y-4 max-w-xl">
+    <div>
+        <label class="block font-semibold">Cont</label>
+        <select name="sourceAccountId" class="border p-2 w-full rounded" required>
+            <option value="">-- Selectează cont --</option>
+            @foreach (var acc in accounts)
+            {
+                <option value="@acc.Id">@acc.IBAN - @acc.Currency - @acc.Customer?.FullName</option>
+            }
+        </select>
+    </div>
+
+    <div>
+        <label class="block font-semibold">Tip tranzacție</label>
+        <select name="type" class="border p-2 w-full rounded" required>
+            <option value="Deposit">Depunere</option>
+            <option value="Retragere">Retragere</option>
+        </select>
+    </div>
+
+    <div>
+        <label class="block font-semibold">Sumă</label>
+        <input type="number" step="0.01" name="amount" class="border p-2 w-full rounded" required />
+    </div>
+
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Execută</button>
+</form>
+
+<div class="mt-6">
+    <a asp-action="Index" class="text-blue-600 hover:underline">← Înapoi la tranzacții</a>
+</div>
