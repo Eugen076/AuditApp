@@ -46,8 +46,9 @@ namespace WebApplication1.Entities
         public virtual UserAccount CreatedBy { get; set; }
 
         [ValidateNever]
-        public ICollection<BankAccount> BankAccounts { get; set; }
-        public ICollection<Loan> Loans { get; set; }
+        public ICollection<BankAccount> BankAccounts { get; set; } = new List<BankAccount>();
+        public ICollection<Loan> Loans { get; set; } = new List<Loan>();
+
     }
 
 }

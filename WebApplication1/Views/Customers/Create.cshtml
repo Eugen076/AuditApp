@@ -6,6 +6,12 @@
 
 <div class="max-w-2xl mx-auto py-10">
     <h1 class="text-3xl font-bold text-gray-800 mb-6">Creare Client</h1>
+    @if (TempData["Error"] != null)
+    {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            @TempData["Error"]
+        </div>
+    }
 
     <form asp-action="Create" class="space-y-6 bg-white p-6 rounded shadow">
         <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm"></div>

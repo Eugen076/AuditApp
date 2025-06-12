@@ -1,56 +1,215 @@
 ﻿@model IEnumerable<WebApplication1.Entities.UserAccount>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var request = HttpContextAccessor.HttpContext?.Request;
+    var selectedSort = request?.Query["sortOrder"].ToString() ?? "";
+    var searchValue = request?.Query["searchString"].ToString() ?? "";
+
+    string toggleSort = selectedSort == "name_desc" ? "" : "name_desc";
+    string arrowSymbol = selectedSort == "name_desc" ?   "▲":"▼";
+}
 
 @if (TempData["Success"] != null)
 {
-    <div class="bg-green-100 text-green-700 px-4 py-3 rounded mb-4">
-        @TempData["Success"]
+    <div id="successToast" class="fixed inset-0 flex items-center justify-center z-50">
+        <div style="box-shadow: 0 10px 25px rgba(0,0,0,0.5);"
+             class="bg-blue-900 text-white flex items-center gap-3 px-6 py-4 rounded-xl animate-fade-in">
+            <i class="fas fa-check-circle text-white text-xl"></i>
+            <span class="font-medium">@TempData["Success"]</span>
+        </div>
     </div>
 }
+
 @if (TempData["Warning"] != null)
 {
-    <div class="bg-yellow-100 text-yellow-700 px-4 py-3 rounded mb-4">
-        @TempData["Warning"]
-    </div>
+    <div class="bg-yellow-100 text-yellow-700 px-4 py-3 rounded mb-4">@TempData["Warning"]</div>
 }
 
-<div class="max-w-5xl mx-auto py-10">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Lista angajaților</h2>
+<div class="max-w-6xl mx-auto py-4 mt-6">
+        <div class="flex justify-between items-end mb-6">
+            <div class="flex flex-col">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Lista angajaților</h2>
+                <a asp-controller="Employee" asp-action="Create"
+                   class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition w-fit">
+                    <i class="fas fa-user-plus mr-2"></i> Adaugă utilizator
+                </a>
+            </div>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white shadow rounded">
+            <form method="get" class="relative max-w-sm w-full">
+                <input type="text" name="searchString" value="@searchValue"
+                       placeholder="Caută angajat..."
+                       class="w-full pl-4 pr-10 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <button type="submit" class="absolute right-3 top-2">
+                    <img src="/images/search.svg" alt="Caută" class="w-4 h-4" />
+                </button>
+            </form>
+        </div>
+
+    <div class="overflow-x-auto bg-white shadow rounded-xl">
+        <table class="min-w-full text-sm text-left">
             <thead class="bg-gray-800 text-white">
                 <tr>
-                    <th class="text-left px-4 py-3">Email</th>
-                    <th class="text-left px-4 py-3">UserName</th>
-                    <th class="text-left px-4 py-3">Activ</th>
-                    <th class="text-left px-4 py-3">Acțiune</th>
+                    <th class="px-6 py-4 font-semibold">
+                        <a href="?sortOrder=@toggleSort&searchString=@searchValue" class="flex items-center gap-2">
+                            Nume
+                            <span>@arrowSymbol</span>
+                        </a>
+
+                    </th>
+                    <th class="px-6 py-4 font-semibold">Email</th>
+                    <th class="px-6 py-4 font-semibold">Status</th>
+                    <th class="px-6 py-4 font-semibold">Rol</th>
+                    <th class="px-6 py-4 font-semibold text-center">Acțiuni</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
                 @foreach (var user in Model)
                 {
-                    <tr>
-                        <td class="px-4 py-3">@user.Email</td>
-                        <td class="px-4 py-3">@user.UserName</td>
-                        <td class="px-4 py-3">
-                            @(user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now ? "Inactiv" : "Activ")
+                    var isInactive = user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now;
+                    var statusText = isInactive ? "Inactiv" : "Activ";
+                    var statusClass = isInactive ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800";
+                    var rowId = $"details-{user.Id}";
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 font-medium text-gray-900">@user.FirstName @user.LastName</td>
+                        <td class="px-6 py-4 text-gray-700">@user.Email</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold @statusClass">@statusText</span>
                         </td>
-                        <td class="px-4 py-3">
-                            <div class="flex gap-2 flex-wrap">
-                                <form asp-action="ToggleActive" method="post">
-                                    <input type="hidden" name="id" value="@user.Id" />
-                                    <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-sm px-3 py-1 rounded border">
-                                        @(user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now ? "Activează" : "Dezactivează")
-                                    </button>
-                                </form>
-                                <a asp-action="EditPassword" asp-route-id="@user.Id" class="bg-gray-100 hover:bg-gray-200 text-sm px-3 py-1 rounded border inline-block">
-                                    Resetează parola
-                                </a>
+                        <td class="px-6 py-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">Angajat</span>
+                        </td>
+                        <td class="px-6 py-4 flex gap-4 justify-center text-center">
+                            <button type="button" onclick="toggleDetails('@user.Id')" title="Detalii"
+                                    class="bg-white text-gray-800 hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
+                                <i class="fas fa-info-circle fa-lg"></i>
+                            </button>
+
+                            <button type="button" onclick="openEditModal('@user.Id')" title="Editează"
+                                    class="bg-white text-gray-800 hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
+                                <i class="fas fa-edit fa-lg"></i>
+                            </button>
+
+                            <form asp-action="Delete" asp-route-id="@user.Id" method="post"
+                                  onsubmit="return confirm('Ești sigur că vrei să ștergi acest angajat?');"
+                                  class="inline-block">
+                                <button type="submit" class="bg-white text-gray-800 hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
+                                    <i class="fas fa-trash-alt fa-lg"></i>
+                                </button>
+                            </form>
+
+                            <a asp-action="EditPassword" asp-route-id="@user.Id" title="Schimbă parola"
+                               class="bg-white text-gray-800 hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
+                                <i class="fas fa-key fa-lg"></i>
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    <tr id="@rowId" class="hidden bg-gray-100">
+                        <td colspan="5" class="px-6 py-4 text-sm text-gray-700">
+                            <div class="space-y-1">
+                                <div><strong>Prenume:</strong> @user.FirstName</div>
+                                <div><strong>Nume:</strong> @user.LastName</div>
+                                <div><strong>Username:</strong> @user.UserName</div>
+                                <div><strong>Email:</strong> @user.Email</div>
                             </div>
                         </td>
                     </tr>
                 }
+
             </tbody>
         </table>
+            <div class="flex justify-between items-center px-6 py-4 bg-white border-t">
+                <div class="text-sm text-gray-600">
+                    Afișare @((ViewBag.PageNumber - 1) * ViewBag.PageSize + 1) -
+                    @(Math.Min(ViewBag.PageNumber * ViewBag.PageSize, ViewBag.TotalCount))
+                    din @ViewBag.TotalCount angajați
+                </div>
+
+                <div class="flex space-x-1">
+                    @{
+                        int totalPages = (int)Math.Ceiling((double)ViewBag.TotalCount / ViewBag.PageSize);
+                        for (int i = 1; i <= totalPages; i++)
+                        {
+                            <a href="?pageNumber=@i&searchString=@searchValue&sortOrder=@selectedSort"
+                               class="px-3 py-1 border rounded @((ViewBag.PageNumber == i) ? "bg-blue-600 text-white" : "text-gray-700 bg-white hover:bg-gray-100")">
+                                @i
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+
     </div>
 </div>
+
+<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded shadow-xl w-full max-w-lg">
+        <h3 class="text-lg font-bold mb-4">Editează angajat</h3>
+        <form method="post" asp-action="Edit">
+            <input type="hidden" id="editUserId" name="id" />
+            <div class="mb-4">
+                <label for="editFirstName" class="block font-medium">Prenume</label>
+                <input type="text" id="editFirstName" name="firstName" class="w-full border rounded px-3 py-2" required />
+            </div>
+            <div class="mb-4">
+                <label for="editLastName" class="block font-medium">Nume</label>
+                <input type="text" id="editLastName" name="lastName" class="w-full border rounded px-3 py-2" required />
+            </div>
+            <div class="mb-4">
+                <label for="editUserName" class="block font-medium">Username</label>
+                <input type="text" id="editUserName" name="userName" class="w-full border rounded px-3 py-2" required />
+            </div>
+            <div class="mb-4">
+                <label for="editEmail" class="block font-medium">Email</label>
+                <input type="email" id="editEmail" name="email" class="w-full border rounded px-3 py-2" required />
+            </div>
+            <div class="mb-4">
+                <label for="editStatus" class="block font-medium">Status</label>
+                <select id="editStatus" name="status" class="w-full border rounded px-3 py-2">
+                    <option value="Activ">Activ</option>
+                    <option value="Inactiv">Inactiv</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-4">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-200 rounded">Anulează</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Salvează</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openEditModal(userId) {
+            fetch(`/Employee/Edit?id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('editUserId').value = data.id;
+                    document.getElementById('editFirstName').value = data.firstName;
+                    document.getElementById('editLastName').value = data.lastName;
+                    document.getElementById('editUserName').value = data.userName;
+                    document.getElementById('editEmail').value = data.email;
+                    document.getElementById('editStatus').value = data.status;
+                    document.getElementById('editModal').classList.remove('hidden');
+                });
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+        function toggleDetails(id) {
+            const row = document.getElementById(`details-${id}`);
+            row.classList.toggle("hidden");
+        }
+            setTimeout(() => {
+                const toast = document.getElementById('successToast');
+                if (toast) {
+                    toast.style.transition = 'opacity 0.5s ease';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 500); 
+                }
+            }, 1000);
+    </script>
+}

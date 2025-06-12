@@ -15,8 +15,10 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int days = 7)
         {
+            var endDate = DateTime.UtcNow.Date;
+            var startDate = endDate.AddDays(-days + 1);
 
             var totalEmployees = await _context.Users.CountAsync();
             var totalCustomers = await _context.Customers.CountAsync();
@@ -25,21 +27,24 @@ namespace WebApplication1.Controllers
             var loginAlerts = await _context.Users
                 .CountAsync(u => u.LockoutEnd != null && u.LockoutEnd > DateTime.UtcNow);
 
-
             var loginLogsRaw = await _context.AuditLogs
-                .Where(a => a.Action == "Login")
+                .Where(a => a.Action == "Login" && a.Timestamp.Date >= startDate && a.Timestamp.Date <= endDate)
                 .ToListAsync();
 
-            var loginLogs = loginLogsRaw
+            var loginLogsGrouped = loginLogsRaw
                 .GroupBy(a => a.Timestamp.Date)
-                .Select(g => new
-                {
-                    Date = g.Key.ToString("dd.MM"),
-                    Count = g.Count()
-                })
-                .OrderBy(g => g.Date)
-                .ToList();
+                .ToDictionary(g => g.Key, g => g.Count());
 
+            var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                .Select(offset => startDate.AddDays(offset));
+
+            var loginLogs = allDates
+                .Select(date => new
+                {
+                    Date = date.ToString("dd.MM.yyyy"),
+                    Count = loginLogsGrouped.ContainsKey(date) ? loginLogsGrouped[date] : 0
+                })
+                .ToList();
 
             var model = new
             {
@@ -47,12 +52,13 @@ namespace WebApplication1.Controllers
                 TotalCustomers = totalCustomers,
                 FailedLogins = failedLogins,
                 LoginAlerts = loginAlerts,
-                LoginsLogs = loginLogs.Cast<dynamic>().ToList()
+                LoginsLogs = loginLogs.Cast<dynamic>().ToList(),
+                Days = days
             };
-
 
             return View(model);
         }
+
 
     }
 }

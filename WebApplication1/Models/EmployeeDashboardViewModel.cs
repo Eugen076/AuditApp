@@ -6,6 +6,10 @@
         public int TotalAccounts { get; set; }
         public int TotalTransactions { get; set; } = 0;
 
+        public int RonAccountsCount { get; set; }       
+        public int EurAccountsCount { get; set; }
+        public int UsdAccountsCount { get; set; }
+
         public List<ClientSummary> ClientSummaries { get; set; } = new();
     }
 

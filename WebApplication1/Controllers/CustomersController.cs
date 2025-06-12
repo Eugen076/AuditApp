@@ -73,24 +73,32 @@ namespace WebApplication1.Controllers
         {
             if (ModelState.IsValid)
             {
-                customer.CreatedAt = DateTime.Now;
+                try
+                {
+                    customer.CreatedAt = DateTime.Now;
 
-                var userId = _userManager.GetUserId(User);
-                customer.CreatedById = userId;
+                    var userId = _userManager.GetUserId(User);
+                    customer.CreatedById = userId;
 
-                _context.Add(customer);
-                await _context.SaveChangesAsync();
+                    _context.Add(customer);
+                    await _context.SaveChangesAsync();
 
-                var userName = User.Identity?.Name;
+                    var userName = User.Identity?.Name;
+                    var details = $"Created customer '{customer.FullName}'";
 
-                var details = $"Created customer '{customer.FullName}'";
+                    await _auditService.LogAsync(userId, userName, "CustomerCreated", details);
 
-                await _auditService.LogAsync(userId, userName, "CustomerCreated", details);
-
-                TempData["Success"] = "Clientul a fost adăugat cu succes.";
-                return RedirectToAction(nameof(Index));
+                    TempData["Success"] = "Clientul a fost adăugat cu succes.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Eroare la salvare: " + ex.Message);
+                    TempData["Error"] = "A apărut o eroare la salvarea clientului.";
+                }
             }
-            // Aici adaugi blocul pentru diagnosticare:
+
+            // Dacă ajunge aici, înseamnă că ModelState nu este valid
             foreach (var entry in ModelState)
             {
                 foreach (var error in entry.Value.Errors)
@@ -101,6 +109,7 @@ namespace WebApplication1.Controllers
 
             return View(customer);
         }
+
 
         // GET: Customers/Edit/5
         public async Task<IActionResult> Edit(int? id)

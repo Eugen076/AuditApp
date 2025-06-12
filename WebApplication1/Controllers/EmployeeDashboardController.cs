@@ -22,11 +22,20 @@ namespace WebApplication1.Controllers
                 .Include(c => c.BankAccounts)
                 .ToListAsync();
 
+    
+            var ronAccounts = clients.SelectMany(c => c.BankAccounts).Count(b => b.Currency == "RON");
+            var eurAccounts = clients.SelectMany(c => c.BankAccounts).Count(b => b.Currency == "EUR");
+            var usdAccounts = clients.SelectMany(c => c.BankAccounts).Count(b => b.Currency == "USD");
+
+
             var model = new EmployeeDashboardViewModel
             {
                 TotalClients = clients.Count,
                 TotalAccounts = clients.SelectMany(c => c.BankAccounts).Count(),
                 TotalTransactions = 0,
+                RonAccountsCount = ronAccounts,
+                EurAccountsCount = eurAccounts,
+                UsdAccountsCount = usdAccounts,
 
                 ClientSummaries = clients.Select(c => new ClientSummary
                 {
@@ -37,6 +46,7 @@ namespace WebApplication1.Controllers
 
             return View(model);
         }
+
 
     }
 }

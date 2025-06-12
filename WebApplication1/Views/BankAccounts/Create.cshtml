@@ -1,42 +1,52 @@
 ﻿@model WebApplication1.Entities.BankAccount
 
 @{
-    ViewData["Title"] = "Create Bank Account";
+    ViewData["Title"] = "Creare Cont Bancar";
 }
 
-<h1>Create Bank Account</h1>
+<div class="max-w-xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Creare Cont Bancar</h2>
 
-<h4>BankAccount</h4>
-<hr />
+    <form asp-action="Create" method="post" class="space-y-4">
+        <input type="hidden" asp-for="CustomerId" />
 
-<form asp-action="Create">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div>
+            <label asp-for="IBAN" class="block text-sm font-medium text-gray-700">IBAN generat</label>
+            <input asp-for="IBAN" class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm sm:text-sm" readonly />
+            <span asp-validation-for="IBAN" class="text-red-500 text-sm"></span>
+        </div>
 
-    <input type="hidden" asp-for="CustomerId" />
+        <div>
+            <label asp-for="Currency" class="block text-sm font-medium text-gray-700">Monedă</label>
+            <select asp-for="Currency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                <option value="RON">RON</option>
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+            </select>
+            <span asp-validation-for="Currency" class="text-red-500 text-sm"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="IBAN" class="control-label"></label>
-        <input asp-for="IBAN" class="form-control" />
-        <span asp-validation-for="IBAN" class="text-danger"></span>
-    </div>
+        <div>
+            <label asp-for="Type" class="block text-sm font-medium text-gray-700">Tip Cont</label>
+            <select asp-for="Type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                <option value="Curent">Curent</option>
+                <option value="Economii">Economii</option>
+            </select>
+            <span asp-validation-for="Type" class="text-red-500 text-sm"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="Balance" class="control-label"></label>
-        <input asp-for="Balance" class="form-control" />
-        <span asp-validation-for="Balance" class="text-danger"></span>
-    </div>
+        <input type="hidden" asp-for="Balance" value="0" />
 
-    <div class="form-group">
-        <label asp-for="Currency" class="control-label"></label>
-        <input asp-for="Currency" class="form-control" />
-        <span asp-validation-for="Currency" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" />
-    </div>
-</form>
-
-<div>
-    <a asp-action="Index">Back to List</a>
+        <div class="flex justify-between">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow">
+                Salvează Cont
+            </button>
+            <a asp-action="Index" asp-route-customerId="@Model.CustomerId"
+               class="text-sm text-blue-600 hover:underline self-center">Revino în listă</a>
+        </div>
+    </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
