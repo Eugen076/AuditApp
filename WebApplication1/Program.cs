@@ -6,12 +6,21 @@ using WebApplication1.Entities;
 using WebApplication1.Models;
 using WebApplication1.Services;
 
-
-
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.Services.AddDbContext<AuditDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 
 builder.Services.AddDefaultIdentity<UserAccount>(options =>
 {
@@ -19,34 +28,28 @@ builder.Services.AddDefaultIdentity<UserAccount>(options =>
     options.Password.RequiredLength = 6;
     options.Password.RequireDigit = true;
     options.Password.RequireNonAlphanumeric = false;
-
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
 })
-.AddRoles<IdentityRole>() 
+.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<AuditDbContext>();
+
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<ICreditService, CreditService>();
-
+builder.Services.AddScoped<ICryptoService, CryptoService>();
 builder.Services.AddHttpClient();
 
-/*builder.Services.AddHttpClient();
-builder.Services.AddScoped<IExchangeRateService, ExchangeRateService>();*/
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.AccessDeniedPath = "/Home/AccessDenied"; 
+    options.AccessDeniedPath = "/Home/AccessDenied";
 });
 
 
-
 builder.Services.AddControllersWithViews();
-
-
-builder.Services.AddSingleton<EmailService>();
 
 var app = builder.Build();
 
@@ -54,7 +57,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -63,13 +65,20 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication();
+app.UseSession(); 
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
+
+app.MapControllerRoute(
+    name: "clientLogin",
+    pattern: "ClientLogin/{action=Login}/{id?}",
+    defaults: new { controller = "ClientLogin" });
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -77,7 +86,6 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserAccount>>();
 
     var roles = new[] { "Admin", "Employee", "Client" };
-
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))
@@ -86,10 +94,8 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-
     string adminEmail = "admin@yahoo.com";
     string adminPassword = "Admin123!";
-
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
     if (adminUser == null)
     {
@@ -99,17 +105,13 @@ using (var scope = app.Services.CreateScope())
             Email = adminEmail,
             EmailConfirmed = true
         };
-
         var result = await userManager.CreateAsync(user, adminPassword);
         if (result.Succeeded)
-        {
             await userManager.AddToRoleAsync(user, "Admin");
-        }
     }
 
-    string clientEmail = "client@demo.com";
+    string clientEmail = "client@client.com";
     string clientPassword = "Client123!";
-
     var clientUser = await userManager.FindByEmailAsync(clientEmail);
     if (clientUser == null)
     {
@@ -119,15 +121,10 @@ using (var scope = app.Services.CreateScope())
             Email = clientEmail,
             EmailConfirmed = true
         };
-
         var result = await userManager.CreateAsync(user, clientPassword);
         if (result.Succeeded)
-        {
             await userManager.AddToRoleAsync(user, "Client");
-        }
     }
 }
-
-
 
 app.Run();

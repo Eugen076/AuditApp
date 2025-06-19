@@ -7,6 +7,7 @@
     string selectedCurrency = ViewBag.SelectedCurrency as string ?? "EUR";
     string currencyName = ViewBag.CurrencyName as string ?? selectedCurrency;
     string selectedDate = ViewBag.Date as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+    string selectedRange = ViewBag.Range as string ?? "7";
 
     var history = ViewBag.History as SortedDictionary<string, decimal>;
     var cursuri = ViewBag.TabelCursuri as List<(string Symbol, string Nume, decimal Rate)>;
@@ -22,18 +23,16 @@
 
 <body class="bg-white min-h-screen">
     <div class="container mx-auto p-6 max-w-7xl">
-        
+
         <header class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Curs Valutar</h1>
             <p class="text-gray-600">Actualizat la @DateTime.Now.ToString("dd MMMM yyyy, HH:mm zzz")</p>
         </header>
 
-       
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-           
+
             <div class="lg:col-span-3 space-y-6">
-                
-              <div class="bg-white shadow-md rounded-lg p-6">
+
+                <div class="bg-white shadow-md rounded-lg p-6">
                     <form method="get" class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Data:</label>
@@ -50,18 +49,24 @@
                                 }
                             </select>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Interval:</label>
+                            <select name="range" class="mt-1 p-2 border rounded-md w-full md:w-48">
+                                <option value="7" selected="@(selectedRange == "7")">7 zile</option>
+                                <option value="30" selected="@(selectedRange == "30")">30 zile</option>
+                                <option value="180" selected="@(selectedRange == "180")">6 luni</option>
+                                <option value="365" selected="@(selectedRange == "365")">1 an</option>
+                            </select>
+                        </div>
                         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Afișează</button>
                     </form>
-                
 
-                <!--Grafic -->
-                @if (history != null && history.Any())
-                {
-                    string lastDate = history.Last().Key;
-                    decimal inverse = 1 / history.Last().Value;
+                    @if (history != null && history.Any())
+                    {
+                        string lastDate = history.Last().Key;
+                        decimal inverse = 1 / history.Last().Value;
 
-                   
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Evoluție curs @currencyName față de RON (ultimele 7 zile)</h2>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Evoluție curs @currencyName față de RON (ultimele @selectedRange zile)</h2>
                         <div class="h-64">
                             <canvas id="rateChart"></canvas>
                         </div>
@@ -71,59 +76,24 @@
                         </p>
 
                         @section Scripts {
-                        <script>
+                        <script type="module">
+                            import { renderExchangeRateChart } from '/js/chart-config.js';
+
                             const labels = @Html.Raw(labelJson);
                             const data = @Html.Raw(valueJson);
+                            const range = "@ViewBag.Range";
 
-                            console.log("Labels:", labels);
-                            console.log("Data:", data);
-
-                            const ctx = document.getElementById("rateChart");
-                            if (ctx && labels.length > 0 && data.length > 0) {
-                                new Chart(ctx, {
-                                    type: "line",
-                                    data: {
-                                        labels: labels,
-                                        datasets: [{
-                                            label: "1 @selectedCurrency în RON",
-                                            data: data,
-                                            borderColor: "#3b82f6",
-                                            backgroundColor: "rgba(59, 130, 246, 0.2)",
-                                            borderWidth: 2,
-                                            tension: 0.2,
-                                            pointRadius: 4,
-                                            pointBackgroundColor: "#3b82f6"
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        scales: {
-                                            y: {
-                                                beginAtZero: false,
-                                                title: { display: true, text: "Curs (RON)" }
-                                            },
-                                            x: {
-                                                title: { display: true, text: "Data" }
-                                            }
-                                        },
-                                        plugins: {
-                                            legend: { position: "top" },
-                                            tooltip: { mode: "index", intersect: false }
-                                        }
-                                    }
-                                });
-                            }
+                            renderExchangeRateChart(labels, data, "@selectedCurrency", range);
                         </script>
                         }
 
-                    
-                }
-                else
-                {
-                       <p class="text-gray-600">Nu există date disponibile pentru grafic.</p>    
-                }
-               </div>
-                
+                    }
+                    else
+                    {
+                        <p class="text-gray-600">Nu există date disponibile pentru grafic.</p>
+                    }
+                </div>
+
                 <div class="bg-white shadow-md rounded-lg p-6">
                     <h2 class="text-xl font-semibold text-gray-800 mb-4">Curs valutar – 1 unitate valută în RON (la data de @selectedDate)</h2>
                     <table class="w-full table-auto text-left">
@@ -152,7 +122,6 @@
                 </div>
             </div>
 
-            
             <div class="lg:col-span-1">
                 <div class="bg-white shadow-md rounded-lg p-6">
                     <h2 class="text-xl font-semibold mb-4">Convertor Rapid</h2>
@@ -197,9 +166,7 @@
             </div>
         </div>
 
-        
         <footer class="mt-10 text-center text-gray-500">
-            <p>Design actualizat pentru curs valutar.</p>
         </footer>
     </div>
 </body>

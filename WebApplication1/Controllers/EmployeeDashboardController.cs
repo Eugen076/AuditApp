@@ -32,16 +32,21 @@ namespace WebApplication1.Controllers
             {
                 TotalClients = clients.Count,
                 TotalAccounts = clients.SelectMany(c => c.BankAccounts).Count(),
-                TotalTransactions = 0,
+                TotalLoans = _context.Loans.Count(),
                 RonAccountsCount = ronAccounts,
                 EurAccountsCount = eurAccounts,
                 UsdAccountsCount = usdAccounts,
 
-                ClientSummaries = clients.Select(c => new ClientSummary
+                ClientSummaries = clients
+               .Select(c => new ClientSummary
                 {
-                    ClientName = c.FullName,
-                    AccountCount = c.BankAccounts.Count
-                }).ToList()
+                   ClientName = c.FullName,
+                   AccountCount = c.BankAccounts.Count
+                })
+                .OrderByDescending(c => c.AccountCount)
+                .Take(3) 
+                .ToList()
+
             };
 
             return View(model);

@@ -20,28 +20,33 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? customerName, DateTime? startDate, DateTime? endDate)
         {
-            if (User.IsInRole("Client"))
+            ViewBag.Customers = await _context.Customers
+                .Select(c => new { c.Id, c.FullName })
+                .ToListAsync();
+
+            var query = _context.Transactions
+                .Include(t => t.SourceAccount)
+                .ThenInclude(a => a.Customer)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(customerName))
             {
-                var allAccounts = await _context.BankAccounts
-                    .ToListAsync();
-
-                var accountIds = allAccounts.Select(a => a.Id).ToList();
-
-                var clientTransactions = await _context.Transactions
-                    .Include(t => t.SourceAccount)
-                    .Where(t => accountIds.Contains(t.SourceAccountId))
-                    .OrderByDescending(t => t.Date)
-                    .ToListAsync();
-
-
-                return View(clientTransactions);
+                query = query.Where(t => t.SourceAccount.Customer.FullName.Contains(customerName));
             }
 
-            var transactions = await _context.Transactions
-                .Include(t => t.SourceAccount)
-                .Include(t => t.TargetAccount)
+            if (startDate.HasValue)
+            {
+                query = query.Where(t => t.Date >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(t => t.Date <= endDate.Value);
+            }
+
+            var transactions = await query
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
 
@@ -50,17 +55,18 @@ namespace WebApplication1.Controllers
 
         public async Task<IActionResult> Create()
         {
-                ViewBag.Accounts = await _context.BankAccounts
-                    .Include(a => a.Customer)
-                    .Where(a => a.IsActive)
-                    .ToListAsync();
+            ViewBag.Customers = await _context.Customers
+                .OrderBy(c => c.FullName)
+                .ToListAsync();
+
+            ViewBag.Accounts = new List<BankAccount>(); // inițial gol
 
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int sourceAccountId, decimal amount, TransactionType type)
+        public async Task<IActionResult> Create(int customerId, int sourceAccountId, decimal amount, TransactionType type)
         {
             var sourceAccount = await _context.BankAccounts.FindAsync(sourceAccountId);
 
@@ -103,5 +109,18 @@ namespace WebApplication1.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        public async Task<JsonResult> GetAccountsByCustomer(int customerId)
+        {
+            var accounts = await _context.BankAccounts
+                .Where(a => a.CustomerId == customerId && a.IsActive)
+                .Select(a => new {
+                    a.Id,
+                    a.IBAN,
+                    a.Currency
+                }).ToListAsync();
+
+            return Json(accounts);
+        }
     }
 }

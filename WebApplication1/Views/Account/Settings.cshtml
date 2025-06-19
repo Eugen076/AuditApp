@@ -1,0 +1,80 @@
+﻿@model WebApplication1.Models.UserSettingsViewModel
+
+<div class="max-w-2xl mx-auto bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-6">Setări Cont</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <form asp-action="UpdateSettings" method="post" class="space-y-5">
+
+        <div>
+            <label class="block text-gray-700">Username</label>
+            <input asp-for="UserName" class="w-full border rounded px-3 py-2" />
+        </div>
+
+        <div>
+            <label class="block text-gray-700">Prenume</label>
+            <input value="@Model.FirstName" disabled class="w-full bg-gray-100 border rounded px-3 py-2" />
+        </div>
+
+        <div>
+            <label class="block text-gray-700">Nume</label>
+            <input value="@Model.LastName" disabled class="w-full bg-gray-100 border rounded px-3 py-2" />
+        </div>
+
+        <div>
+            <label class="block text-gray-700">Email</label>
+            <input value="@Model.Email" disabled class="w-full bg-gray-100 border rounded px-3 py-2" />
+        </div>
+
+@*         <div>
+            <label class="block text-gray-700">Rol</label>
+            <input value="@Model.Role" disabled class="w-full bg-gray-100 border rounded px-3 py-2" />
+        </div>
+ *@
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Salvează modificările
+        </button>
+    </form>
+
+    <hr class="my-6" />
+
+    <button id="togglePasswordForm" type="button" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        Schimbă Parola
+    </button>
+
+    <div id="passwordForm" class="mt-4 hidden transition-all duration-300 ease-in-out">
+        <h3 class="text-lg font-semibold mb-2">Schimbă Parola</h3>
+
+        <form method="post" asp-action="ChangePassword">
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700">Parola Veche</label>
+                <input type="password" name="OldPassword" class="w-full border rounded px-3 py-2" required />
+            </div>
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700">Parola Nouă</label>
+                <input type="password" name="NewPassword" class="w-full border rounded px-3 py-2" required />
+            </div>
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700">Confirmă Parola Nouă</label>
+                <input type="password" name="ConfirmPassword" class="w-full border rounded px-3 py-2" required />
+            </div>
+
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Salvează Parola</button>
+        </form>
+    </div>
+
+</div>
+@section Scripts {
+    <script>
+        document.getElementById("togglePasswordForm").addEventListener("click", function () {
+            const form = document.getElementById("passwordForm");
+            form.classList.toggle("hidden");
+        });
+    </script>
+}

@@ -11,11 +11,10 @@ public class ExchangeRatesController : Controller
         _httpClient = httpClient;
     }
 
-    public async Task<IActionResult> Index(string selectedCurrency = "EUR", string? date = null)
+    public async Task<IActionResult> Index(string selectedCurrency = "EUR", string? date = null, string range = "7")
     {
         var parsedDate = string.IsNullOrEmpty(date) ? DateTime.Today : DateTime.Parse(date);
 
-      
         string convertFrom = Request.Query["convertFrom"];
         string convertTo = Request.Query["convertTo"];
         string amountStr = Request.Query["amount"];
@@ -31,23 +30,21 @@ public class ExchangeRatesController : Controller
             convertResult = rate * amount;
         }
 
-        
         ViewBag.ConvertFrom = convertFrom;
         ViewBag.ConvertTo = convertTo;
         ViewBag.Amount = amountStr;
         ViewBag.ConvertResult = convertResult;
 
-        var startDate = parsedDate.AddDays(-6);
+        int days = int.TryParse(range, out var r) ? r : 7;
+        var startDate = parsedDate.AddDays(-days + 1);
 
         string dateStr = parsedDate.ToString("yyyy-MM-dd");
         string startStr = startDate.ToString("yyyy-MM-dd");
 
-       
         var symbolsUrl = "https://api.frankfurter.app/currencies";
         var symbolsResponse = await _httpClient.GetStringAsync(symbolsUrl);
         var symbolsJson = JObject.Parse(symbolsResponse);
 
-    
         var rateHistory = new SortedDictionary<string, decimal>();
 
         if (selectedCurrency != "RON")
@@ -61,7 +58,7 @@ public class ExchangeRatesController : Controller
 
                 foreach (var item in historyJson["rates"])
                 {
-                    var data = item.Path;
+                    var data = item.Path.Replace("rates.", "");
                     var valoare = item.First?[selectedCurrency]?.Value<decimal>() ?? 0;
 
                     if (valoare > 0)
@@ -97,9 +94,9 @@ public class ExchangeRatesController : Controller
         ViewBag.History = rateHistory;
         ViewBag.Symbols = symbolsJson;
         ViewBag.TabelCursuri = cursuri;
+        ViewBag.Range = range;
 
         return View();
     }
 
 }
- 

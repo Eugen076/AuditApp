@@ -71,9 +71,9 @@ namespace WebApplication1.Controllers
 
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userName = User.Identity?.Name;
-                var details = $"Created bank account for customer '{customerName}' with IBAN: {bankAccount.IBAN}";
+                var details = $"Cont bancar creat pentru clientul '{customerName}' cu IBAN-ul: {bankAccount.IBAN}";
 
-                await _auditService.LogAsync(userId, userName, "BankAccountCreated", details);
+                await _auditService.LogAsync(userId, userName, "ContBancarCreat", details);
 
                 TempData["SuccessMessage"] = "Contul bancar a fost creat cu succes!";
                 return RedirectToAction("Index", new { customerId = bankAccount.CustomerId });
@@ -133,9 +133,9 @@ namespace WebApplication1.Controllers
             var customer = await _context.Customers.FindAsync(customerId);
             var customerName = customer?.FullName ?? "Necunoscut";
 
-            var details = $"Deleted bank account for customer '{customerName}' with IBAN: {bankAccount.IBAN}";
+            var details = $"Cont bancar sters pentru clientul '{customerName}' cu IBAN-ul: {bankAccount.IBAN}";
 
-            await _auditService.LogAsync(userId, userName, "BankAccountDeleted", details);
+            await _auditService.LogAsync(userId, userName, "ContBancarSters", details);
 
             TempData["SuccessMessage"] = "Contul bancar a fost șters cu succes!";
             return RedirectToAction("Index", new { customerId = customerId });
@@ -173,8 +173,15 @@ namespace WebApplication1.Controllers
             {
                 try
                 {
-                    _context.Update(bankAccount);
+                    var accountInDb = await _context.BankAccounts.FindAsync(id);
+                    if (accountInDb == null)
+                        return NotFound();
+
+                    
+                    accountInDb.IsActive = bankAccount.IsActive;
+
                     await _context.SaveChangesAsync();
+
 
                     var customerId = bankAccount.CustomerId;
 
@@ -184,9 +191,9 @@ namespace WebApplication1.Controllers
                     var customer = await _context.Customers.FindAsync(customerId);
                     var customerName = customer?.FullName ?? "Necunoscut";
 
-                    var details = $"Edited bank account for customer '{customerName}' with IBAN: {bankAccount.IBAN}";
+                    var details = $"Cont bancar editat pentru '{customerName}' cu IBAN-ul: {bankAccount.IBAN}";
 
-                    await _auditService.LogAsync(userId, userName, "BankAccountEdited", details);
+                    await _auditService.LogAsync(userId, userName, "ContBancarEditat", details);
 
                     TempData["SuccessMessage"] = "Contul bancar a fost actualizat cu succes!";
                     return RedirectToAction("Index", new { customerId = bankAccount.CustomerId });

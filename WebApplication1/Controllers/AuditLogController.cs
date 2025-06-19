@@ -56,7 +56,7 @@ namespace WebApplication1.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? userName, string? actionType, DateTime? fromDate, DateTime? toDate)
+        public async Task<IActionResult> Index(string? userName, string? actionType, DateTime? fromDate, DateTime? toDate, int pageNumber = 1, int pageSize = 15)
         {
             var query = _context.AuditLogs.AsQueryable();
 
@@ -75,11 +75,14 @@ namespace WebApplication1.Controllers
                 query = query.Where(a => a.Timestamp <= endOfDay);
             }
 
+            var totalCount = await query.CountAsync();
+
             var results = await query
                 .OrderByDescending(a => a.Timestamp)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(a => new AuditLogViewModel
                 {
-                    /*Id = a.Id,*/
                     UserName = a.UserName,
                     Action = a.Action,
                     Timestamp = a.Timestamp,
@@ -87,14 +90,19 @@ namespace WebApplication1.Controllers
                     Details = a.Details
                 }).ToListAsync();
 
+
             var viewModel = new AuditLogFilterViewModel
             {
                 UserName = userName,
                 Action = actionType,
                 FromDate = fromDate,
                 ToDate = toDate,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
                 Results = results
             };
+
 
             return View(viewModel);
         }

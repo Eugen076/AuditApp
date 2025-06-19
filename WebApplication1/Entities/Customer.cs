@@ -18,17 +18,17 @@ namespace WebApplication1.Entities
         public string FullName { get; set; }
 
         [Required]
-        [StringLength(13, MinimumLength = 13)]
+        [StringLength(256)]
         public string CNP { get; set; }
 
         [Required]
         [EmailAddress]
         public string Email { get; set; }
 
-        [Phone]
+        [StringLength(256)]
         public string Phone { get; set; }
 
-        [StringLength(200)]
+        [StringLength(512)]
         public string Address { get; set; }
 
         public bool IsActive { get; set; } = true;

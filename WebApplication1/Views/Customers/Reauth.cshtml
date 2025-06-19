@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Confirmare Parolă";
+    var id = ViewBag.CustomerId;
+}
+<p style="color: gray;">Logat ca: @User.Identity?.Name</p>
+
+<h3>Introduceți parola pentru a accesa datele sensibile</h3>
+
+<form asp-action="Reauth" method="post" id="authForm">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="Id" id="clientId" value="@id" />
+
+    <input type="password" name="Password" class="form-control" required />
+    <br />
+
+    <button type="submit" class="btn btn-primary">Confirmă</button>
+</form>
+
+<p id="authError" class="text-danger @(ViewBag.Error != null ? "" : "hidden")">
+    @ViewBag.Error
+</p>

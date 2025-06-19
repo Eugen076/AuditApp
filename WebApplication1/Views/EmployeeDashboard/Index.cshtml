@@ -4,9 +4,7 @@
     ViewData["Title"] = "Dashboard Angajat";
 }
 
-<div class="container mx-auto py-8">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Dashboard Angajat</h2>
-
+<div class="container mx-auto py-1">
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-white rounded shadow p-6 text-center">
@@ -18,14 +16,14 @@
             <h2 class="text-3xl font-bold text-gray-800">@Model.TotalAccounts</h2>
         </div>
         <div class="bg-white rounded shadow p-6 text-center">
-            <h6 class="uppercase text-sm text-gray-500 mb-1">Tranzacții în ultima lună</h6>
-            <h2 class="text-3xl font-bold text-gray-800">@Model.TotalTransactions</h2>
+            <h6 class="uppercase text-sm text-gray-500 mb-1">Credite</h6>
+            <h2 class="text-3xl font-bold text-gray-800">@Model.TotalLoans</h2>
         </div>
     </div>
 
     
     <div class="bg-white rounded shadow">
-        <div class="bg-gray-800 text-white text-lg font-semibold px-6 py-4 rounded-t">
+        <div class="text-white text-lg font-semibold px-6 py-4 rounded-t" style="background-color: #19324F;">
             Clienții tăi
         </div>
         <div class="p-6 overflow-x-auto">
@@ -53,6 +51,14 @@
             {
                 <p class="text-gray-500">Nu există clienți disponibili.</p>
             }
+            <div class="mt-4 flex justify-end">
+                <a asp-controller="Customers" asp-action="Index"
+                   class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                    Vezi toți clienții
+                </a>
+            </div>
+
+
         </div>
     </div>
 

@@ -5,11 +5,13 @@ namespace WebApplication1.Models
 {
     public class CreateLoanViewModel
     {
-        public int CustomerId { get; set; }
+        [Required(ErrorMessage = "Trebuie să selectezi un client.")]
+        public int? CustomerId { get; set; }
+
         public List<SelectListItem> Customers { get; set; } = new();
 
         [Required]
-        [Range(1000, 1000000)]
+        [Range(5000, 1200000)]
         public decimal Amount { get; set; }
 
         [Required(ErrorMessage = "Selectează un tip de credit.")]
@@ -28,6 +30,10 @@ namespace WebApplication1.Models
 
         public DateTime StartDate { get; set; } = DateTime.Now;
         public string ReturnUrl { get; set; }
+        public decimal MinAmount { get; set; }
+        public decimal MaxAmount { get; set; }
+        public int MinYears { get; set; }
+        public int MaxYears { get; set; }
 
     }
 }

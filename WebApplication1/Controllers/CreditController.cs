@@ -8,14 +8,16 @@ namespace WebApplication1.Controllers
     public class CreditController : Controller
     {
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(string creditType = "Nevoi personale")
         {
+            decimal minAmount = creditType == "Imobiliar-Ipotecar" ? 7000 : 5000;
+
             return View(new CreditViewModel
             {
-                LoanAmount = 5000,
+                LoanAmount = minAmount,
                 LoanTermYears = 1,
                 LoanTermMonths = 12,
-                CreditType = "Nevoi personale",
+                CreditType = creditType,
                 Currency = "LEI"
             });
         }

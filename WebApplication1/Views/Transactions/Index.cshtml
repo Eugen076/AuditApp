@@ -4,8 +4,6 @@
     ViewData["Title"] = "Tranzacții";
 }
 
-<h1 class="text-2xl font-bold mb-6">Tranzacții</h1>
-
 @if (TempData["Success"] != null)
 {
     <div class="text-green-600 mb-4">@TempData["Success"]</div>
@@ -17,11 +15,40 @@
 }
 else
 {
+    <form method="get" class="mb-4 flex flex-wrap gap-4 items-end">
+        <div>
+            <label class="block text-sm">Client</label>
+            <input type="text" name="customerName" class="border rounded px-3 py-1" placeholder="Caută client..."
+                   value="@(Context.Request.Query["customerName"])" />
+        </div>
+        <div>
+            <label class="block text-sm">De la</label>
+            <input type="date" name="startDate" class="border rounded px-3 py-1"
+                   value="@(Context.Request.Query["startDate"])" />
+        </div>
+        <div>
+            <label class="block text-sm">Până la</label>
+            <input type="date" name="endDate" class="border rounded px-3 py-1"
+                   value="@(Context.Request.Query["endDate"])" />
+        </div>
+        <div>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded">Filtrează</button>
+        </div>
+        <div>
+            <a href="@Url.Action("Index", "Transactions")"
+               class="flex items-center gap-2 px-3 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-100 transition">
+                <i class="fas fa-sync-alt"></i>
+                Resetează
+            </a>
+        </div>
+    </form>
+
     <table class="min-w-full bg-white border rounded text-sm">
         <thead class="bg-gray-100 text-left">
             <tr>
                 <th class="px-4 py-2">Tip</th>
                 <th class="px-4 py-2">Cont</th>
+                <th class="px-4 py-2">Client</th>
                 <th class="px-4 py-2">Sumă</th>
                 <th class="px-4 py-2">Data</th>
             </tr>
@@ -32,6 +59,7 @@ else
                 <tr class="border-t hover:bg-gray-50">
                     <td class="px-4 py-2">@tx.Type</td>
                     <td class="px-4 py-2">@tx.SourceAccount?.IBAN</td>
+                    <td class="px-4 py-2">@tx.SourceAccount?.Customer?.FullName</td>
                     <td class="px-4 py-2">@tx.Amount.ToString("N2") RON</td>
                     <td class="px-4 py-2">@tx.Date.ToString("dd.MM.yyyy HH:mm")</td>
                 </tr>

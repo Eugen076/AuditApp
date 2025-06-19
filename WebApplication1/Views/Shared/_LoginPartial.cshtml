@@ -2,9 +2,10 @@
 {
     <form asp-controller="Account" asp-action="LogOut" method="post" id="logoutForm" class="flex items-center space-x-4">
         <span class="text-white">
-            Hello @Context.User.Identity.Name!
+            Bună ziua @Context.User.Identity.Name!
         </span>
-        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition">
+        <button type="submit" class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-md text-sm font-medium shadow transition">
+            <i class="fas fa-sign-out-alt"></i>
             Log off
         </button>
     </form>
@@ -13,7 +14,7 @@ else
 {
     <div class="flex items-center space-x-4">
         @* <a asp-controller="Account" asp-action="Registration" class="text-white hover:underline">Register</a> *@
-        <a asp-controller="Account" asp-action="Login" class="text-white hover:underline">
+        <a asp-controller="Account" asp-action="Login" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-0 rounded">
             Log in
         </a>
     </div>

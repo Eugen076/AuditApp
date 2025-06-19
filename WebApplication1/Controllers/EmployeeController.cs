@@ -75,7 +75,7 @@ namespace WebApplication1.Controllers
         }
 
 
-        [HttpGet]
+/*        [HttpGet]
         public async Task<IActionResult> EditPassword(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -97,10 +97,10 @@ namespace WebApplication1.Controllers
             };
 
             return View(model);
-        }
+        }*/
 
 
-        [HttpPost]
+/*        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPassword([FromForm] ResetPasswordViewModel model)
 
@@ -132,7 +132,7 @@ namespace WebApplication1.Controllers
             
             TempData["ErrorMessage"] = "Resetarea parolei a eșuat: " + string.Join(", ", result.Errors.Select(e => e.Description));
             return View(model);
-        }
+        }*/
       
         [HttpGet]
         public async Task<IActionResult> Edit(string id)

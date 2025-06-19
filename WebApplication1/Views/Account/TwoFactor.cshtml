@@ -1,0 +1,33 @@
+﻿@model WebApplication1.Models.TwoFactorViewModel
+
+@{
+    ViewData["Title"] = "Verificare 2FA";
+}
+
+<div class="max-w-md mx-auto mt-12 bg-white p-6 rounded-xl shadow-lg">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">Verificare 2FA</h2>
+
+    <form asp-action="TwoFactor" method="post" class="space-y-4">
+        <input type="hidden" asp-for="UserId" />
+
+        <div>
+            <label asp-for="Code" class="block text-sm font-medium text-gray-700">Cod 2FA</label>
+            <input asp-for="Code" type="text"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+            <span asp-validation-for="Code" class="text-sm text-red-500"></span>
+        </div>
+
+        <button type="submit"
+                class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow">
+            Verifică
+        </button>
+    </form>
+
+    <a asp-controller="Account" asp-action="Login" class="text-blue-600 hover:underline text-sm inline-block mt-4">
+        Revino la autentificare
+    </a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

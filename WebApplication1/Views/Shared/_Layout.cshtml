@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - WebApplication1</title>
 
-    
     <script src="https://cdn.tailwindcss.com"></script>
-
-  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="~/css/site.css" />
 
     <style>
         html, body {
@@ -19,65 +17,89 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-   
-    <nav class="bg-gray-800 p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <a class="text-white text-xl font-bold" href="/">Bank</a>
+<body class="bg-white min-h-screen text-gray-800 flex">
 
-            <button class="lg:hidden text-white focus:outline-none" id="menu-toggle">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                </svg>
-            </button>
+    <aside class="w-64 bg-sidebar h-screen shadow fixed top-0 left-0 z-50 flex flex-col justify-between text-white">
+        <div>
+            <div class="px-6 py-4">
+                <h1 class="text-xl font-bold hover:text-white">Bank</h1>
+            </div>
+            <nav class="p-6 space-y-4">
+                @if (User.IsInRole("Admin"))
+                {
+                    <ul class="list-none space-y-4">
+                        <li><a class="text-gray-500 hover:text-blue-600 flex items-center" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-chart-line mr-2"></i> Dashboard</a></li>
+                        <li><a class="text-gray-500 hover:text-blue-600 flex items-center" asp-controller="Employee" asp-action="Index"><i class="fas fa-user-tie mr-2"></i> Angajați</a></li>
+                        <li><a class="text-gray-500 hover:text-blue-600 flex items-center" asp-controller="Account" asp-action="Registration"><i class="fas fa-user-plus mr-2"></i> Adaugă utilizator</a></li>
+                        <li><a class="text-gray-500 hover:text-blue-600 flex items-center" asp-controller="AuditLog" asp-action="Index"><i class="fas fa-file-alt mr-2"></i> Audit Log</a></li>
+                    </ul>
+                }
+                @if (User.IsInRole("Employee"))
+                {
+                    <ul class="list-none space-y-4">
+                    <li><a class="text-gray-500 hover:text-white flex items-center" asp-controller="EmployeeDashboard" asp-action="Index"><i class="fas fa-chart-bar mr-1"></i> Dashboard</a></li>
+                    <li><a class="text-gray-500 hover:text-white flex items-center" asp-controller="Customers" asp-action="Index"><i class="fas fa-users mr-1"></i> Clienți</a></li>
+                    <li><a class="text-gray-500 hover:text-white flex items-center" asp-controller="Transactions" asp-action="Index"><i class="fas fa-exchange-alt mr-1"></i> Tranzacții</a></li>
+                    <li><a class="text-gray-500 hover:text-white flex items-center" asp-controller="ExchangeRates" asp-action="Index"><i class="fa fa-chart-line mr-1"></i> Curs valutar</a></li>
+                    <li><a class="text-gray-500 hover:text-white flex items-center" asp-controller="Credit" asp-action="Index"><i class="fa fa-credit-card mr-1"></i> Credite</a></li>
+                    </ul>
+                }
+                @if (User.IsInRole("Client"))
+                {
+                    <ul class="list-none space-y-4">
+                    <li><a asp-controller="Transactions" asp-action="Index">Tranzacții</a></li>
+                    <li><a asp-controller="Transactions" asp-action="Create">Depune / Retrage</a></li>
+                    </ul>
+                }
+@*                 <div class="mt-8 pt-4">
+                    <p class="text-xs uppercase text-gray-400 tracking-wider mb-3 px-1">Contacte Urgență</p>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-2 text-gray-700">
+                            <i class="fas fa-phone-volume text-red-600"></i>
+                            <div>
+                                <p class="text-sm font-medium">Apel de Urgență</p>
+                                <p class="text-xs text-gray-500">Număr unic: <strong>112</strong></p>
+                            </div>
+                        </li>
+                    </ul>
+                </div> *@
 
-            <div class="hidden lg:flex lg:items-center" id="navbarContent">
-                <ul class="flex space-x-4">
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-chart-line mr-1"></i> Dashboard</a></li>
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Employee" asp-action="Index"><i class="fas fa-user-tie mr-1"></i> Angajați</a></li>
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Account" asp-action="Registration"><i class="fas fa-user-plus mr-1"></i> Adaugă utilizator</a></li>
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="AuditLog" asp-action="Index"><i class="fas fa-file-alt mr-1"></i> Audit Log</a></li>
-                    }
-                    @if (User.IsInRole("Employee"))
-                    {
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="EmployeeDashboard" asp-action="Index"><i class="fas fa-chart-bar mr-1"></i> Dashboard</a></li>
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Customers" asp-action="Index"><i class="fas fa-users mr-1"></i> Clienți</a></li>
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Transactions" asp-action="Index"><i class="fas fa-exchange-alt mr-1"></i> Tranzacții</a></li>
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="ExchangeRates" asp-action="Index"><i class="fa fa-chart-line mr-1"></i> Curs valutar</a></li>
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Credit" asp-action="Index"><i class="fa fa-credit-card mr-1"></i> Credite</a></li>
-                        <li><a class="text-gray-300 hover:text-white flex items-center" asp-controller="Settings" asp-action="Index"><i class="fas fa-cog mr-1"></i> Setări</a></li>
-                    }
-                    @if (User.IsInRole("Client"))
-                    {
-                        <li><a asp-controller="Transactions" asp-action="Index">Tranzacții</a></li>
-                        <li><a asp-controller="Transactions" asp-action="Create">Depune / Retrage</a></li>
-                    }
+
+            </nav>
+        </div>
+
+        <!-- Linie separator + secțiuni jos -->
+        <div class="border-t border-gray-300 px-6 pt-10 pb-10 space-y-3 text-sm text-gray-500">
+            @if (User.IsInRole("Employee"))
+            {
+                <ul class="list-none space-y-4">
+                <li><a class="text-gray-500 hover:text-white flex items-center" asp-controller="Account" asp-action="Settings">  <i class="fas fa-cog mr-1"></i> Setări Cont  </a> </li>
                 </ul>
-                <div class="ml-4">
-                    @await Html.PartialAsync("_LoginPartial")
-                </div>
+            }
+            <a href="#" class="flex items-center gap-2 hover:text-blue-600">
+                <i class="fas fa-circle-question"></i> Help & Support
+            </a>
+        </div>
+    </aside>
+
+    <div class="ml-64 flex-1 min-h-screen flex flex-col bg-gray-50">
+        <div class="topbar">
+            <h2 class="text-xl font-semibold hover:text-white">@ViewData["Title"]</h2>
+            <div class="flex items-center gap-4">
+                @await Html.PartialAsync("_LoginPartial")
             </div>
         </div>
-    </nav>
 
-  
-    <div class="container mx-auto mt-6 px-4">
-        <main role="main" class="pb-6">
+
+        <!-- PAGE BODY -->
+        <main class="px-6 py-6 max-w-7xl w-full mx-auto">
             @RenderBody()
         </main>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     @RenderSection("Scripts", required: false)
-
-    <script>
-        document.getElementById('menu-toggle')?.addEventListener('click', function () {
-            const navbarContent = document.getElementById('navbarContent');
-            navbarContent?.classList.toggle('hidden');
-        });
-    </script>
 </body>
 </html>

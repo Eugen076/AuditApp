@@ -1,5 +1,8 @@
 ﻿@model IEnumerable<WebApplication1.Entities.UserAccount>
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Angajati";
+}
 
 @{
     var request = HttpContextAccessor.HttpContext?.Request;
@@ -26,11 +29,11 @@
     <div class="bg-yellow-100 text-yellow-700 px-4 py-3 rounded mb-4">@TempData["Warning"]</div>
 }
 
-<div class="max-w-6xl mx-auto py-4 mt-6">
+<div class="max-w-6xl mx-auto py-4 mt-0">
         <div class="flex justify-between items-end mb-6">
             <div class="flex flex-col">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">Lista angajaților</h2>
-                <a asp-controller="Employee" asp-action="Create"
+                @* <h2 class="text-2xl font-bold text-gray-800 mb-2">Lista angajaților</h2> *@
+                <a asp-controller="Account" asp-action="Registration"
                    class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition w-fit">
                     <i class="fas fa-user-plus mr-2"></i> Adaugă utilizator
                 </a>
@@ -48,7 +51,7 @@
 
     <div class="overflow-x-auto bg-white shadow rounded-xl">
         <table class="min-w-full text-sm text-left">
-            <thead class="bg-gray-800 text-white">
+            <thead class="bg-gray-100 text-black">
                 <tr>
                     <th class="px-6 py-4 font-semibold">
                         <a href="?sortOrder=@toggleSort&searchString=@searchValue" class="flex items-center gap-2">
@@ -81,27 +84,24 @@
                         </td>
                         <td class="px-6 py-4 flex gap-4 justify-center text-center">
                             <button type="button" onclick="toggleDetails('@user.Id')" title="Detalii"
-                                    class="bg-white text-gray-800 hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
+                                    class="bg-white text-[#19324F] hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
                                 <i class="fas fa-info-circle fa-lg"></i>
                             </button>
 
                             <button type="button" onclick="openEditModal('@user.Id')" title="Editează"
-                                    class="bg-white text-gray-800 hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
+                                    class="bg-white text-[#19324F] hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
                                 <i class="fas fa-edit fa-lg"></i>
                             </button>
 
                             <form asp-action="Delete" asp-route-id="@user.Id" method="post"
                                   onsubmit="return confirm('Ești sigur că vrei să ștergi acest angajat?');"
                                   class="inline-block">
-                                <button type="submit" class="bg-white text-gray-800 hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
+                                <button type="submit" class="bg-white text-[#19324F] hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
                                     <i class="fas fa-trash-alt fa-lg"></i>
                                 </button>
                             </form>
 
-                            <a asp-action="EditPassword" asp-route-id="@user.Id" title="Schimbă parola"
-                               class="bg-white text-gray-800 hover:bg-gray-100 px-3 py-2 rounded flex items-center justify-center">
-                                <i class="fas fa-key fa-lg"></i>
-                            </a>
+
                         </td>
 
                     </tr>

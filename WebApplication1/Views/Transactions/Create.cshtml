@@ -1,49 +1,61 @@
-﻿@using WebApplication1.Enums
-
-@{
-    ViewData["Title"] = "Nouă tranzacție";
+﻿@{
+    ViewData["Title"] = "Înregistrează o tranzacție";
+    var customers = ViewBag.Customers as List<WebApplication1.Entities.Customer>;
     var accounts = ViewBag.Accounts as List<WebApplication1.Entities.BankAccount>;
 }
 
-<h1 class="text-2xl font-bold mb-6">Înregistrează o tranzacție</h1>
+<h2 class="text-xl font-bold mb-4">Înregistrează o tranzacție</h2>
 
-@if (TempData["Error"] != null)
-{
-    <div class="text-red-600 mb-4">@TempData["Error"]</div>
-}
-@if (TempData["Success"] != null)
-{
-    <div class="text-green-600 mb-4">@TempData["Success"]</div>
-}
-
-<form asp-action="Create" method="post" class="space-y-4 max-w-xl">
+<form method="post" asp-action="Create" class="space-y-4">
     <div>
-        <label class="block font-semibold">Cont</label>
-        <select name="sourceAccountId" class="border p-2 w-full rounded" required>
-            <option value="">-- Selectează cont --</option>
-            @foreach (var acc in accounts)
+        <label class="block font-semibold">Client</label>
+        <select id="customerSelect" name="customerId" class="form-select w-full p-2 border rounded">
+            <option value="">-- Selectează client --</option>
+            @foreach (var c in customers)
             {
-                <option value="@acc.Id">@acc.IBAN - @acc.Currency - @acc.Customer?.FullName</option>
+                <option value="@c.Id">@c.FullName</option>
             }
         </select>
     </div>
 
     <div>
-        <label class="block font-semibold">Tip tranzacție</label>
-        <select name="type" class="border p-2 w-full rounded" required>
-            <option value="Deposit">Depunere</option>
-            <option value="Retragere">Retragere</option>
+        <label class="block font-semibold">Cont</label>
+        <select id="accountSelect" name="sourceAccountId" class="form-select w-full p-2 border rounded">
+            <option value="">-- Selectează cont --</option>
         </select>
     </div>
 
     <div>
-        <label class="block font-semibold">Sumă</label>
-        <input type="number" step="0.01" name="amount" class="border p-2 w-full rounded" required />
+        <label class="block font-semibold">Suma</label>
+        <input name="amount" type="number" step="0.01" class="form-input w-full p-2 border rounded" required />
+    </div>
+
+    <div>
+        <label class="block font-semibold">Tip tranzacție</label>
+        <select name="type" class="form-select w-full p-2 border rounded">
+            <option value="0">Depunere</option>
+            <option value="1">Retragere</option>
+        </select>
     </div>
 
     <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Execută</button>
 </form>
 
-<div class="mt-6">
-    <a asp-action="Index" class="text-blue-600 hover:underline">← Înapoi la tranzacții</a>
-</div>
+@section Scripts {
+    <script>
+        document.getElementById("customerSelect").addEventListener("change", function () {
+            const customerId = this.value;
+            const accountSelect = document.getElementById("accountSelect");
+            accountSelect.innerHTML = "<option>-- Se încarcă conturi --</option>";
+
+            fetch(`/Transactions/GetAccountsByCustomer?customerId=${customerId}`)
+                .then(res => res.json())
+                .then(data => {
+                    accountSelect.innerHTML = '<option value="">-- Selectează cont --</option>';
+                    data.forEach(acc => {
+                        accountSelect.innerHTML += `<option value="${acc.id}">${acc.iban} - ${acc.currency}</option>`;
+                    });
+                });
+        });
+    </script>
+}

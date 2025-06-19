@@ -7,6 +7,11 @@
         .GroupBy(a => a.Type)
         .ToDictionary(g => g.Key, g => g.ToList());
 }
+<a asp-controller="Customers" asp-action="Index"
+   class="inline-flex items-center text-sm text-blue-600 hover:underline px-3 py-1 mb-4 border border-blue-600 rounded hover:bg-blue-100 transition w-fit">
+    Înapoi
+</a>
+
 
 <div class="max-w-5xl mx-auto py-10">
     @if (TempData["SuccessMessage"] != null)
@@ -15,8 +20,6 @@
             @TempData["SuccessMessage"]
         </div>
     }
-
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">@ViewData["Title"]</h2>
 
     <a asp-action="Create" asp-route-customerId="@ViewBag.CustomerId"
        class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded mb-6 shadow">
@@ -58,10 +61,16 @@
                                 <p class="text-gray-600 mb-1">Creat la: @acc.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
                                 <p class="text-gray-600 mb-3">Status: @(acc.IsActive ? "Activ" : "Inactiv")</p>
 
-                                <div class="flex gap-2">
-                                    <a asp-action="Details" asp-route-id="@acc.Id" class="text-sm text-blue-600 hover:underline">Detalii</a>
-                                    <a asp-action="Edit" asp-route-id="@acc.Id" class="text-sm text-yellow-600 hover:underline">Editează</a>
-                                    <a asp-action="Delete" asp-route-id="@acc.Id" class="text-sm text-red-600 hover:underline">Șterge</a>
+                                <div class="flex gap-4">
+@*                                     <a asp-action="Details" asp-route-id="@acc.Id" class="icon-button" title="Detalii">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a> *@
+                                    <a asp-action="Edit" asp-route-id="@acc.Id" class="icon-button" title="Editează">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@acc.Id" class="icon-button" title="Șterge">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
                                 </div>
                             </div>
                         }
@@ -89,7 +98,7 @@
                             <th class="px-3 py-2">Sumă</th>
                             <th class="px-3 py-2">Dobândă</th>
                             <th class="px-3 py-2">Rată lunară</th>
-                            <th class="px-3 py-2">Durată</th>
+                            <th class="px-3 py-2">Durată (ani)</th>
                             <th class="px-3 py-2">Total</th>
                         </tr>
                     </thead>
@@ -101,7 +110,7 @@
                                 <td class="px-3 py-2">@loan.Amount.ToString("N2") RON</td>
                                 <td class="px-3 py-2">@((loan.InterestRate * 100).ToString("0.#"))%</td>
                                 <td class="px-3 py-2">@loan.MonthlyPayment.ToString("N2")</td>
-                                <td class="px-3 py-2">@loan.LoanTermMonths</td>
+                                <td class="px-3 py-2">@(loan.LoanTermMonths /12) </td>
                                 <td class="px-3 py-2">@loan.TotalAmountPaid.ToString("N2") RON</td>
                             </tr>
                         }

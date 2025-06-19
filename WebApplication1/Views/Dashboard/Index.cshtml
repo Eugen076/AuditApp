@@ -1,49 +1,90 @@
 ﻿@model dynamic
-
 @{
     ViewData["Title"] = "Dashboard";
 }
 
-<h2 class="mb-4 text-2xl font-semibold text-center">Dashboard de Monitorizare</h2>
+<div class="flex justify-end items-center gap-4 mt-6 mb-6 mx-4">
+    <div class="flex items-center space-x-2 border border-gray-200 px-3 py-1.5 rounded-md bg-white text-sm text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M3 11h18M5 19h14a2 2 0 002-2V7H3v10a2 2 0 002 2z" />
+        </svg>
+        <span>21 Oct - 21 Nov</span>
+    </div>
 
-<!-- CARDURI CENTRATE CU STIL CLASIC ALB -->
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 justify-items-center mb-6">
-    <div class="bg-white p-6 rounded-2xl shadow text-center w-full max-w-xs">
-        <h4 class="text-gray-500">Angajați</h4>
-        <h2 class="text-2xl font-bold text-blue-700">@Model.TotalEmployees</h2>
-    </div>
-    <div class="bg-white p-6 rounded-2xl shadow text-center w-full max-w-xs">
-        <h4 class="text-gray-500">Clienți</h4>
-        <h2 class="text-2xl font-bold text-blue-700">@Model.TotalCustomers</h2>
-    </div>
-    <div class="bg-white p-6 rounded-2xl shadow text-center w-full max-w-xs">
-        <h4 class="text-gray-500">Conturi blocate</h4>
-        <h2 class="text-2xl font-bold text-blue-700">@Model.LoginAlerts</h2>
-    </div>
+    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md text-sm font-medium shadow-sm">
+        Export CSV
+    </button>
 </div>
 
-<!-- GRAFIC CU SELECTOR INCORPORAT -->
-<div class="mt-4 bg-white p-6 rounded-2xl shadow">
+
+<div class="mb-8 mt-7">
+    <div class="border-t border-gray-200 mb-4 mx-4"></div>
+
+    <div class="grid grid-cols-3 divide-x divide-gray-200 rounded-xl mx-4 mb-8 mt-7 text-center">
+        <div class="py-6 px-5">
+            <p class="text-sm text-gray-500">Angajați</p>
+            <h2 class="text-2xl font-semibold text-gray-900">@(Model.TotalEmployees-2)</h2>
+            <p class="text-xs text-gray-400">+0 față de săptămâna trecută</p>
+        </div>
+        <div class="py-6 px-5">
+            <p class="text-sm text-gray-500">Clienți</p>
+            <h2 class="text-2xl font-semibold text-gray-900">@Model.TotalCustomers</h2>
+            <p class="text-xs text-gray-400">+0 față de săptămâna trecută</p>
+        </div>
+        <div class="py-6 px-5">
+            <p class="text-sm text-gray-500">Conturi blocate</p>
+            <h2 class="text-2xl font-semibold text-gray-900">@Model.LoginAlerts</h2>
+            <p class="text-xs text-gray-400">+0 față de săptămâna trecută</p>
+        </div>
+    </div>
+
+    <div class="border-t border-gray-200 mt-4 mx-4"></div>
+</div>
+
+
+
+<div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
     <div class="flex justify-between items-center mb-4">
-        <h4 class="text-lg font-semibold">Grafic Activitate (@Model.Days zile)</h4>
-        <form method="get" class="flex space-x-2">
-            <button type="submit" name="days" value="7" class="px-4 py-1 rounded-full font-medium shadow-md @(Model.Days == 7 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-blue-100")">
+        <h4 class="text-lg font-semibold text-gray-800">
+            Activitate utilizatori (@Model.Days zile)
+        </h4>
+
+        <form method="get" class="flex gap-2">
+            <button type="submit" name="days" value="7"
+                    class="px-4 py-1.5 rounded-full text-sm font-medium transition duration-200 ease-in-out
+                @(Model.Days == 7 ? "bg-blue-600 text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-blue-100")">
                 7D
             </button>
-            <button type="submit" name="days" value="30" class="px-4 py-1 rounded-full font-medium shadow-md @(Model.Days == 30 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-blue-100")">
+            <button type="submit" name="days" value="30"
+                    class="px-4 py-1.5 rounded-full text-sm font-medium transition duration-200 ease-in-out
+                @(Model.Days == 30 ? "bg-blue-600 text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-blue-100")">
                 30D
             </button>
         </form>
     </div>
-    <canvas id="loginChart" height="100"></canvas>
+
+    <div class="h-72">
+        <!-- echivalent cu 18rem / 288px -->
+        <canvas id="loginChart" class="w-full h-full"></canvas>
+    </div>
 </div>
+
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair"></script>
+
     <script>
-        const ctx = document.getElementById('loginChart').getContext('2d');
+        const canvas = document.getElementById('loginChart');
+        const ctx = canvas.getContext('2d');
+
         const labels = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)Model.LoginsLogs).Select(l => l.Date)));
         const values = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)Model.LoginsLogs).Select(l => l.Count)));
+
+        // Gradient albastru sub linie
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height || 300);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)'); // albastru deschis
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');   // transparent
 
         const loginChart = new Chart(ctx, {
             type: 'line',
@@ -52,46 +93,71 @@
                 datasets: [{
                     label: 'Logări pe zi',
                     data: values,
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    borderColor: 'rgba(59, 130, 246, 1)',
-                    borderWidth: 2,
+                    borderColor: 'rgba(59, 130, 246, 1)',     // albastru
+                    backgroundColor: gradient,
                     fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
+                    tension: 0,                                // linie ascuțită
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: 'white',
+                    pointBorderColor: 'rgba(59, 130, 246, 1)',
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: '#fff',
+                        titleColor: '#111',
+                        bodyColor: '#111',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        padding: 10,
+                        borderRadius: 6,
+                        displayColors: false
+                    },
+                    crosshair: {
+                        line: {
+                            color: '#aaa',
+                            width: 1
+                        },
+                        sync: { enabled: false },
+                        zoom: { enabled: false },
+                        snap: true
+                    }
+                },
                 scales: {
                     x: {
+                        grid: { display: false },
                         ticks: {
-                            callback: function (value, index, values) {
+                            color: '#6b7280',
+                            font: { size: 12 },
+                            callback: function (value, index) {
                                 const parts = labels[index].split(".");
                                 const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-                                return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                                return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
                             }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Data'
                         }
                     },
                     y: {
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Număr logări'
+                        grid: {
+                            drawBorder: false,
+                            color: 'rgba(0,0,0,0.05)'
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: { size: 12 }
                         }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
                     }
                 }
             }
         });
     </script>
 }
+

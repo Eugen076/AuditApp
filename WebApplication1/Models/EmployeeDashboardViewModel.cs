@@ -4,7 +4,7 @@
     {
         public int TotalClients { get; set; }
         public int TotalAccounts { get; set; }
-        public int TotalTransactions { get; set; } = 0;
+        public int TotalLoans { get; set; }
 
         public int RonAccountsCount { get; set; }       
         public int EurAccountsCount { get; set; }

@@ -1,4 +1,4 @@
-html {
+/*html {
   font-size: 14px;
 }
 
@@ -66,5 +66,21 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+}*/
+.bg-sidebar {
+    background-color: #273c59;
 }
+.topbar {
+    background-color: #19324F;
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+
+
 

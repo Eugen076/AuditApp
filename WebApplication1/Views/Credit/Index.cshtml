@@ -1,5 +1,7 @@
 ﻿@model WebApplication1.Models.CreditViewModel
-
+@{
+    ViewData["Title"] = "Clienti";
+}
 <div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
     <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Simulator de Credite</h2>
 
@@ -7,17 +9,16 @@
         <input type="hidden" id="creditType" name="CreditType" value="@Model.CreditType" />
 
         <div class="flex space-x-4 mb-6">
-            <button type="submit"
-                    onclick="document.getElementById('creditType').value='Nevoi personale';"
-                    class="@(Model.CreditType == "Nevoi personale" ? "bg-blue-200" : "bg-gray-100") text-gray-800 font-semibold py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-200">
-                Nevoi personale
-            </button>
+<a href="@Url.Action("Index", new { creditType = "Nevoi personale" })"
+   class="@(Model.CreditType == "Nevoi personale" ? "bg-blue-200" : "bg-gray-100") text-gray-800 font-semibold py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-200">
+    Nevoi personale
+</a>
 
-            <button type="submit"
-                    onclick="document.getElementById('creditType').value='Imobiliar-Ipotecar';"
-                    class="@(Model.CreditType == "Imobiliar-Ipotecar" ? "bg-blue-200" : "bg-gray-100") text-gray-800 font-semibold py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-200">
-                Imobiliar-Ipotecar
-            </button>
+<a href="@Url.Action("Index", new { creditType = "Imobiliar-Ipotecar" })"
+   class="@(Model.CreditType == "Imobiliar-Ipotecar" ? "bg-blue-200" : "bg-gray-100") text-gray-800 font-semibold py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-200">
+    Imobiliar-Ipotecar
+</a>
+
         </div>
 
         <div>
@@ -60,7 +61,7 @@
             else
             {
                 <select asp-for="LoanTermYears" class="mt-1 block w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    @foreach (var year in new[] { 1, 5, 10, 20, 30 })
+                    @foreach (var year in new[] {10, 20, 30 })
                     {
                         <option value="@year">@year ani</option>
                     }
@@ -93,16 +94,17 @@
             </a>
         </div>
     }
-</div>
 
-<!-- Buton creare credit cu preluare valori -->
-<a asp-controller="Loan" asp-action="Create"
-   asp-route-loanAmount="@Model.LoanAmount"
-   asp-route-loanType="@Model.CreditType"
-   asp-route-loanTermYears="@Model.LoanTermYears"
-   class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow transition">
-    Creează Credit Nou
-</a>
+    <div class="mt-6 flex justify-center">
+        <a asp-controller="Loan" asp-action="Create"
+           asp-route-loanAmount="@Model.LoanAmount"
+           asp-route-loanType="@Model.CreditType"
+           asp-route-loanTermYears="@Model.LoanTermYears"
+           class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow transition">
+            Creează credit nou
+        </a>
+    </div>
+</div>
 
 <script>
     function updateLoanAmount(value) {
