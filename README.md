@@ -35,6 +35,8 @@
 1. Clonează repository-ul:
    ```bash
    git clone https://github.com/<username>/BankManagerApp.git
+   
+## Capturi ecran
 
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/2fa424c3-1bc0-45b5-b4ef-8901f0975a54" /> <img width="800" alt="image" src="https://github.com/user-attachments/assets/216c11f1-13e6-4956-ace1-29486f392fd7" /> <img width="800" alt="image" src="https://github.com/user-attachments/assets/edc4d0c9-6cc0-472c-9dd4-fcaf7ff84d95" /> <img width="800" alt="image" src="https://github.com/user-attachments/assets/02b0e19d-319f-415b-b9ee-ed85342238d5" /> <img width="800" alt="image" src="https://github.com/user-attachments/assets/50858283-a3c2-41e7-8bce-72cb558bbee4" /> <img width="800" alt="image" src="https://github.com/user-attachments/assets/d1663e54-cf7c-4f7c-b8f3-b1e20e89949d" />
 
